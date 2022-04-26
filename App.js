@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  SafeAreaView,
   Image,
   StyleSheet,
   TouchableOpacity,
@@ -8,6 +9,7 @@ import {
   Button,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
 export default function App() {
   const [selectedImage, setSelectedImage] = React.useState([]);
@@ -33,39 +35,97 @@ export default function App() {
 
   if (selectedImage !== null) {
     return (
-      <View style={styles.container}>
-        {console.log(selectedImage)}
-        {/* <TouchableOpacity onPress={openImagePickerAsync}>
+      <SafeAreaView
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "blue",
+        }}
+      >
+        <View style={styles.container}>
+          {console.log(selectedImage)}
           <Image
             source={{ uri: selectedImage.localUri }}
             style={styles.thumbnail}
           />
-        </TouchableOpacity> */}
-        <Button
-          onPress={(e) => setSelectedImage(null)}
-          title="Clear"
-          color="#841584"
-          accessibilityLabel="Learn more about this purple button"
-        />
-      </View>
+          <TouchableOpacity
+            style={{
+              backgroundColor: "#006E7F",
+              width: 150,
+              height: 50,
+              padding: 10,
+              borderRadius: 5,
+              textAlign: "center",
+            }}
+            onPress={(e) => setSelectedImage(null)}
+          >
+            <Text
+              style={{
+                fontSize: 20,
+                fontFamily: "Roboto-Light",
+                fontWeight: "bold",
+                color: "white",
+              }}
+            >
+              CLEAR
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Image
-        source={{ uri: "https://i.imgur.com/TkIrScD.png" }}
-        style={styles.logo}
-      />
-      <Text style={styles.instructions}>
-        To share a photo from your phone with a friend, just press the button
-        below!
-      </Text>
+    <SafeAreaView
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "blue",
+      }}
+    >
+      <View style={styles.container}>
+        <Image
+          source={{ uri: "https://i.imgur.com/TkIrScD.png" }}
+          style={styles.logo}
+        />
+        <Text style={styles.instructions}>
+          To share a photo from your phone with a friend, just press the button
+          below!
+        </Text>
 
-      <TouchableOpacity onPress={openImagePickerAsync} style={styles.button}>
-        <Text style={styles.buttonText}>Pick a photo</Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity onPress={openImagePickerAsync} style={styles.button}>
+          <Text style={styles.buttonText}>Pick a photo</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{
+            position: "absolute",
+            bottom: 20,
+            flexDirection: "row",
+            backgroundColor: "#AD40AF",
+            width: "90%",
+            height: 70,
+            padding: 20,
+            borderRadius: 5,
+            textAlign: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 20,
+              fontFamily: "Roboto-Light",
+              // fontWeight: "bold",
+              color: "white",
+            }}
+          >
+            Let's Began
+          </Text>
+          <MaterialIcons name="arrow-forward-ios" size={22} color="#fff" />
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 }
 
