@@ -6,10 +6,10 @@ import {
   TouchableOpacity,
   Text,
   View,
-  Button,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+// import GammingImg from "./assets/img/gaming.svg";
 
 export default function App() {
   const [selectedImage, setSelectedImage] = React.useState([]);
@@ -44,7 +44,7 @@ export default function App() {
         }}
       >
         <View style={styles.container}>
-          {console.log(selectedImage)}
+          {/* {console.log(selectedImage)} */}
           <Image
             source={{ uri: selectedImage.localUri }}
             style={styles.thumbnail}
@@ -63,7 +63,7 @@ export default function App() {
             <Text
               style={{
                 fontSize: 20,
-                fontFamily: "Roboto-Light",
+                // fontFamily: "Roboto-Light",
                 fontWeight: "bold",
                 color: "white",
               }}
@@ -86,36 +86,44 @@ export default function App() {
       }}
     >
       <View style={styles.container}>
-        <Image
-          source={{ uri: "https://i.imgur.com/TkIrScD.png" }}
-          style={styles.logo}
-        />
-        <Text style={styles.instructions}>
-          To share a photo from your phone with a friend, just press the button
-          below!
-        </Text>
+        <Text style={styles.mainHeader}>My City Clone</Text>
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <Image
+            source={{ uri: "https://i.imgur.com/TkIrScD.png" }}
+            style={styles.logo}
+          />
+          <Text style={styles.instructions}>
+            To share a photo from your phone with a friend, just press the
+            button below!
+          </Text>
+        </View>
 
-        <TouchableOpacity onPress={openImagePickerAsync} style={styles.button}>
+        {/* <GammingImg width={120} height={40} fill={"none"} /> */}
+
+        {/* <TouchableOpacity onPress={openImagePickerAsync} style={styles.button}>
           <Text style={styles.buttonText}>Pick a photo</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <TouchableOpacity
           style={{
-            position: "absolute",
+            // position: "absolute",
             bottom: 20,
             flexDirection: "row",
             backgroundColor: "#AD40AF",
-            width: "90%",
+            width: "60%",
             height: 70,
             padding: 20,
             borderRadius: 5,
             textAlign: "center",
-            justifyContent: "space-between",
+            justifyContent: "space-around",
           }}
+          onPress={openImagePickerAsync}
         >
           <Text
             style={{
               fontSize: 20,
-              fontFamily: "Roboto-Light",
+              // fontFamily: "Roboto-Light",
               // fontWeight: "bold",
               color: "white",
             }}
@@ -159,5 +167,16 @@ const styles = StyleSheet.create({
     width: 300,
     height: 300,
     resizeMode: "contain",
+  },
+  mainHeader: {
+    top: 10,
+    width: "90%",
+    height: 100,
+    padding: 20,
+    textAlign: "center",
+    fontWeight: "bold",
+    fontSize: 30,
+    // fontFamily: "Roboto-Light",
+    color: "#000000",
   },
 });

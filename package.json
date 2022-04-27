@@ -1,5 +1,7 @@
 {
-  "name": "native-base-ui",
+  "name": "Image Picker",
+  "slug": "native-base-ui",
+  "description": "This is an awsome app I have ever seen.",
   "version": "1.0.0",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
@@ -10,20 +12,26 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "@expo-google-fonts/inter": "^0.2.2",
     "@react-navigation/native": "^6.0.10",
     "expo": "~44.0.0",
+    "expo-font": "~10.0.4",
     "expo-image-picker": "~12.0.1",
     "expo-status-bar": "~1.2.0",
     "native-base": "^2.8.2",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "react-native": "0.64.3",
+    "react-native-safe-area-context": "3.3.2",
+    "react-native-screens": "~3.10.1",
+    "react-native-svg": "12.1.1",
     "react-native-vector-icons": "^6.0.2",
     "react-native-web": "0.17.1",
     "react-timer-mixin": "^0.13.4"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.9"
+    "@babel/core": "^7.12.9",
+    "react-native-svg-transformer": "^1.0.0"
   },
   "private": true
 }
