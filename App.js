@@ -6,15 +6,19 @@ import {
   TouchableOpacity,
   Text,
   View,
+  ImageBackground,
 } from "react-native";
+
 import * as ImagePicker from "expo-image-picker";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import {
   NavigationContainer,
   NavigationHelpersContext,
 } from "@react-navigation/native";
+
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-// import GammingImg from "./assets/img/gaming.svg";
+
+import Home from "./src/components/home";
 
 const Stack = createNativeStackNavigator();
 
@@ -44,10 +48,12 @@ const Main = ({ navigation }) => {
         backgroundColor: "white",
       }}
     >
-      {/* <Image
-        source={require("./assets/adaptive-icon.png")}
-        style={styles.backgroundImage}
-      /> */}
+      {/* <ImageBackground
+        style={{ width: 100, height: 100 }}
+        source={{
+          uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==",
+        }}
+      > */}
       <View style={styles.container}>
         {/* <Image source={require('./assets/adaptive-icon.png')} style= {styles.backgroundImage} resizeMode={Image.resizeMode.sretch}> */}
         <View>
@@ -86,7 +92,7 @@ const Main = ({ navigation }) => {
             // position: "absolute",
             bottom: 20,
             flexDirection: "row",
-            backgroundColor: "#AD40AF",
+            backgroundColor: "#DA1212",
             width: "60%",
             height: 70,
             padding: 20,
@@ -109,22 +115,8 @@ const Main = ({ navigation }) => {
           <MaterialIcons name="arrow-forward-ios" size={22} color="#fff" />
         </TouchableOpacity>
       </View>
+      {/* </ImageBackground> */}
     </SafeAreaView>
-  );
-};
-
-const Home = () => {
-  return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        textAlign: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text>Home Screen</Text>
-    </View>
   );
 };
 
@@ -281,8 +273,11 @@ const styles = StyleSheet.create({
   },
   backgroundImage: {
     flex: 1,
+    // height: 100,
+    // width: 200,
     alignSelf: "stretch",
     width: null,
+    position: "absolute",
   },
 });
 
