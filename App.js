@@ -9,141 +9,46 @@ import {
   ImageBackground,
 } from "react-native";
 
-import * as ImagePicker from "expo-image-picker";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-import {
-  NavigationContainer,
-  NavigationHelpersContext,
-} from "@react-navigation/native";
+// import {
+//   NavigationContainer,
+//   NavigationHelpersContext,
+// } from "@react-navigation/native";
 
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+// import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import Home from "./src/components/home";
 
-const Stack = createNativeStackNavigator();
+// const Stack = createNativeStackNavigator();
 
 const App = () => {
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name="Main"
-          component={Main}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen name="Home" component={Home} />
-        <Stack.Screen name="ImagePickerScreen" component={ImagePickerScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Main />
+    // <NavigationContainer>
+    //   <Stack.Navigator>
+    //     <Stack.Screen
+    //       name="Main"
+    //       component={Main}
+    //       options={{ headerShown: false }}
+    //     />
+    //     <Stack.Screen name="Home" component={Home} />
+    //     <Stack.Screen name="ImagePickerScreen" component={ImagePickerScreen} />
+    //   </Stack.Navigator>
+    // </NavigationContainer>
   );
 };
 
 const Main = ({ navigation }) => {
-  return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "white",
-      }}
-    >
-      {/* <ImageBackground
-        style={{ width: 100, height: 100 }}
-        source={{
-          uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==",
-        }}
-      > */}
-      <View style={styles.container}>
-        {/* <Image source={require('./assets/adaptive-icon.png')} style= {styles.backgroundImage} resizeMode={Image.resizeMode.sretch}> */}
-        <View>
-          <View>
-            <Text style={styles.mainHeader}>Rakhita</Text>
-          </View>
-          <View>
-            <Text style={styles.subHeader}>Music App</Text>
-          </View>
-        </View>
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
-          <TouchableOpacity
-            onPress={() => navigation.navigate("ImagePickerScreen")}
-          >
-            <Image
-              source={require("./assets/adaptive-icon.png")}
-              style={styles.logo}
-            />
-          </TouchableOpacity>
+  const [startApp, setStartApp] = React.useState(false);
 
-          <Text style={styles.instructions}>
-            Rakhita music app is awesome, you can listen online and offline. You
-            can upload your own song on Rakhita
-          </Text>
-        </View>
-
-        {/* <GammingImg width={120} height={40} fill={"none"} /> */}
-
-        {/* <TouchableOpacity onPress={openImagePickerAsync} style={styles.button}>
-          <Text style={styles.buttonText}>Pick a photo</Text>
-        </TouchableOpacity> */}
-        <TouchableOpacity
-          style={{
-            // position: "absolute",
-            bottom: 20,
-            flexDirection: "row",
-            backgroundColor: "#DA1212",
-            width: "60%",
-            height: 70,
-            padding: 20,
-            borderRadius: 5,
-            textAlign: "center",
-            justifyContent: "space-around",
-          }}
-          onPress={() => navigation.navigate("Home")}
-        >
-          <Text
-            style={{
-              fontSize: 20,
-              // fontFamily: "Roboto-Light",
-              // fontWeight: "bold",
-              color: "white",
-            }}
-          >
-            Let's Began
-          </Text>
-          <MaterialIcons name="arrow-forward-ios" size={22} color="#fff" />
-        </TouchableOpacity>
-      </View>
-      {/* </ImageBackground> */}
-    </SafeAreaView>
-  );
-};
-
-// image picker screen
-const ImagePickerScreen = () => {
-  const [selectedImage, setSelectedImage] = React.useState([]);
-
-  let openImagePickerAsync = async () => {
-    let permissionResult =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    if (permissionResult.granted === false) {
-      alert("Permission to access camera roll is required!");
-      return;
-    }
-
-    let pickerResult = await ImagePicker.launchImageLibraryAsync();
-    console.log(pickerResult);
-
-    if (pickerResult.cancelled === true) {
-      return;
-    }
-
-    setSelectedImage({ localUri: pickerResult.uri });
+  // On Click Handler -> when click Let's Began Button
+  const LetBeganHandler = () => {
+    setStartApp(true);
   };
 
-  if (selectedImage !== null) {
+  if (startApp == true) {
+    return <Home />;
+  } else {
     return (
       <SafeAreaView
         style={{
@@ -154,72 +59,68 @@ const ImagePickerScreen = () => {
         }}
       >
         <View style={styles.container}>
-          {/* {console.log(selectedImage)} */}
-          <Image
-            source={{ uri: selectedImage.localUri }}
-            style={styles.thumbnail}
-          />
+          <View>
+            <View>
+              <Text style={styles.mainHeader}>Rakhita</Text>
+            </View>
+            <View>
+              <Text style={styles.subHeader}>Music App</Text>
+            </View>
+          </View>
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          >
+            <TouchableOpacity
+              onPress={() => navigation.navigate("ImagePickerScreen")}
+            >
+              <Image
+                source={require("./assets/adaptive-icon.png")}
+                style={styles.logo}
+              />
+            </TouchableOpacity>
+
+            <Text style={styles.instructions}>
+              Rakhita music app is awesome, you can listen online and offline.
+              You can upload your own song on Rakhita
+            </Text>
+          </View>
+
+          {/* <GammingImg width={120} height={40} fill={"none"} /> */}
+
+          {/* <TouchableOpacity onPress={openImagePickerAsync} style={styles.button}>
+            <Text style={styles.buttonText}>Pick a photo</Text>
+          </TouchableOpacity> */}
           <TouchableOpacity
             style={{
-              backgroundColor: "#006E7F",
-              width: 150,
-              height: 50,
-              padding: 10,
+              bottom: 20,
+              flexDirection: "row",
+              backgroundColor: "#DA1212",
+              width: "60%",
+              height: 70,
+              padding: 20,
               borderRadius: 5,
               textAlign: "center",
+              justifyContent: "space-around",
             }}
-            onPress={(e) => setSelectedImage(null)}
+            onPress={() => LetBeganHandler()}
           >
             <Text
               style={{
                 fontSize: 20,
                 // fontFamily: "Roboto-Light",
-                fontWeight: "bold",
+                // fontWeight: "bold",
                 color: "white",
               }}
             >
-              CLEAR
+              Let's Began
             </Text>
+            <MaterialIcons name="arrow-forward-ios" size={22} color="#8F00FF" />
           </TouchableOpacity>
         </View>
+        {/* </ImageBackground> */}
       </SafeAreaView>
     );
   }
-
-  return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "white",
-      }}
-    >
-      <View style={styles.container}>
-        <TouchableOpacity
-          style={{
-            backgroundColor: "#006E7F",
-            width: 150,
-            height: 50,
-            padding: 10,
-            borderRadius: 5,
-            textAlign: "center",
-          }}
-          // onPress={(e) => setSelectedImage(null)}
-        >
-          <Text
-            style={{
-              fontSize: 20,
-              fontWeight: "bold",
-              color: "white",
-            }}
-          >
-            Pick
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
-  );
 };
 
 const styles = StyleSheet.create({
@@ -249,11 +150,6 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 20,
     color: "#fff",
-  },
-  thumbnail: {
-    width: 300,
-    height: 300,
-    resizeMode: "contain",
   },
   mainHeader: {
     top: 10,
