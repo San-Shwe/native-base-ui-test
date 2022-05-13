@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -6,11 +6,24 @@ import {
   Dimensions,
   TouchableOpacity,
   Image,
+  FlatList,
+  Animated,
 } from "react-native";
+import TrackPlayer, {
+  Capability,
+  Event,
+  State,
+  usePlayerState,
+  useProgress,
+  useTrackPlayerEvents,
+} from "react-native-track-player";
 import { SafeAreaView } from "react-native-safe-area-context";
-import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-import Slider from "react-native-slider";
+
+// import Ionicons from "react-native-vector-icons/MaterialIcons";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import Slider from "@react-native-community/slider";
 import * as ImagePicker from "expo-image-picker";
+import { songs } from "../model/data";
 
 import {
   NavigationContainer,
@@ -18,6 +31,22 @@ import {
 } from "@react-navigation/native";
 
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+
+const setupPlayer = async () => {
+  await TrackPlayer.setupPlayer();
+  await TrackPlayer.add(songs);
+};
+
+const togglePlayBack = async (playBackState) => {
+  const currentTrack = await TrackPlayer.getCurrentTrack();
+  if (currentTrack != null) {
+    if (playBackState == State.Paused) {
+      await TrackPlayer.play();
+    } else {
+      await TrackPlayer.pause();
+    }
+  }
+};
 
 const Stack = createNativeStackNavigator();
 const { width, height } = Dimensions.get("window");
@@ -38,21 +67,89 @@ const Home = () => {
   );
 };
 
+// Music Player Compenent
 const MusicPlayerScreen = () => {
+  // to get current index by animated value
+  const scrollX = useRef(new Animated.Value(0)).current;
+  // slider > when click next or previous button
+  const songSlider = useRef(null);
+  // index > to get index of song, which can use to show song's title and author name
+  const [songIndex, setSongIndex] = useState(0);
+  // current play or purse state
+  const playBackState = usePlayerState();
+
+  // useEffect work everytime when user scroll the slider
+  useEffect(() => {
+    // get offline songs
+    setupPlayer();
+
+    scrollX.addListener(({ value }) => {
+      const index = Math.round(value / width);
+      setSongIndex(index);
+    });
+    return () => {
+      scrollX.removeAllListeners();
+    };
+  }, []);
+
+  // Go To next Song
+  const skipToNext = () => {
+    songSlider.current.scrollToOffset({
+      offset: (songIndex + 1) * width,
+    });
+  };
+  // Go To Previous song
+  const skipToPrevious = () => {
+    songSlider.current.scrollToOffset({
+      offset: (songIndex - 1) * width,
+    });
+  };
+
+  // render songs component for flatlist
+  const renderSongs = ({ index, item }) => {
+    return (
+      <Animated.View
+        style={{
+          width: width,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <View style={styles.artworkWrapper}>
+          <Image source={item.image} style={styles.artworkImg} />
+        </View>
+      </Animated.View>
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.mainContainer}>
-        {/* <MaterialIcons name="favorite" size={22} color="#8F00FF" />
-        <Text>App Screen</Text> */}
-        <View style={styles.artworkWrapper}>
-          <Image
-            source={require("../assets/artwork/FarCry6.png")}
-            style={styles.artworkImg}
+        <View style={{ width: width }}>
+          <Animated.FlatList
+            ref={songSlider}
+            data={songs}
+            renderItem={renderSongs}
+            keyExtractor={(item) => item.id}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            scrollEventThrottle={16}
+            onScroll={Animated.event(
+              [
+                {
+                  nativeEvent: {
+                    contentOffset: { x: scrollX },
+                  },
+                },
+              ],
+              { useNativeDriver: true }
+            )}
           />
         </View>
         <View>
-          <Text style={styles.title}>song Title</Text>
-          <Text style={styles.artist}>song artist</Text>
+          <Text style={styles.title}>{songs[songIndex].title}</Text>
+          <Text style={styles.artist}>{songs[songIndex].artist}</Text>
         </View>
         <View>
           <Slider
@@ -62,24 +159,58 @@ const MusicPlayerScreen = () => {
             maximumValue={100}
             thumbTintColor="#ffd369"
             minimumTrackTintColor="#ffd369"
-            maximumTrackTintColor="#fff"
-            onSliderComplete={() => {}}
+            maximumTrackTintColor="#FFF"
           />
+          <View style={styles.progressLabelContainer}>
+            <Text style={styles.progressLabelText}>0:00</Text>
+            <Text style={styles.progressLabelText}>0:00</Text>
+          </View>
+        </View>
+        <View style={styles.musicControls}>
+          <TouchableOpacity onPress={skipToPrevious}>
+            <Ionicons
+              name="play-skip-back-outline"
+              size={30}
+              style={{ marginTop: 10 }}
+              color="#8F00FF"
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              togglePlayBack(playBackState);
+            }}
+          >
+            <Ionicons
+              name={
+                playBackState === State.play ? "play-circle" : "pause-circle"
+              }
+              size={50}
+              color="#8F00FF"
+            />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={skipToNext}>
+            <Ionicons
+              name="play-skip-forward-outline"
+              size={30}
+              style={{ marginTop: 10 }}
+              color="#8F00FF"
+            />
+          </TouchableOpacity>
         </View>
       </View>
       <View style={styles.bottomBar}>
         <View style={styles.bottomControl}>
           <TouchableOpacity onPress={() => {}}>
-            <MaterialIcons name="favorite" size={30} color="#8F00FF" />
+            <Ionicons name="heart-outline" size={30} color="#8F00FF" />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => {}}>
-            <MaterialIcons name="repeat" size={30} color="#8F00FF" />
+            <Ionicons name="repeat" size={30} color="#8F00FF" />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => {}}>
-            <MaterialIcons name="share" size={30} color="#8F00FF" />
+            <Ionicons name="share-social-outline" size={30} color="#8F00FF" />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => {}}>
-            <MaterialIcons name="menu" size={30} color="#8F00FF" />
+            <Ionicons name="settings-outline" size={30} color="#8F00FF" />
           </TouchableOpacity>
         </View>
       </View>
@@ -232,6 +363,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: "#fff",
+    textAlign: "center",
   },
   artist: {
     fontSize: 16,
@@ -244,6 +376,21 @@ const styles = StyleSheet.create({
     height: 40,
     marginTop: 25,
     flexDirection: "row",
+  },
+  progressLabelContainer: {
+    width: 350,
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  progressLabelText: {
+    color: "#fff",
+  },
+  musicControls: {
+    flexDirection: "row",
+    // textAlign: "center",
+    width: "60%",
+    justifyContent: "space-between",
+    marginTop: 15,
   },
   thumbnail: {
     width: 300,

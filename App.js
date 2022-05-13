@@ -114,7 +114,7 @@ const Main = ({ navigation }) => {
             >
               Let's Began
             </Text>
-            <MaterialIcons name="arrow-forward-ios" size={22} color="#8F00FF" />
+            <MaterialIcons name="arrow-forward-ios" size={22} color="#FFF" />
           </TouchableOpacity>
         </View>
         {/* </ImageBackground> */}
