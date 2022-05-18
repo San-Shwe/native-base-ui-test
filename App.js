@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   SafeAreaView,
   Image,
@@ -6,11 +6,10 @@ import {
   TouchableOpacity,
   Text,
   View,
+  StatusBar,
   ImageBackground,
 } from "react-native";
 
-import * as ImagePicker from "expo-image-picker";
-import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import {
   NavigationContainer,
   NavigationHelpersContext,
@@ -18,27 +17,32 @@ import {
 
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import Home from "./src/components/home";
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
 const Stack = createNativeStackNavigator();
+import Home from "./src/components/home";
 
 const App = () => {
-  return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name="Main"
-          component={Main}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen name="Home" component={Home} />
-        <Stack.Screen name="ImagePickerScreen" component={ImagePickerScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
+  const [newStart, setNewStart] = useState(true);
+  if (newStart == true) {
+    return <Main setNewStart={setNewStart} />;
+  } else {
+    return (
+      <NavigationContainer>
+        <StatusBar barStyle="light-content" />
+        <Stack.Navigator>
+          <Stack.Screen name="Home" component={Home} />
+          {/* <Stack.Screen
+            name="ImagePickerScreen"
+            component={ImagePickerScreen}
+          /> */}
+        </Stack.Navigator>
+      </NavigationContainer>
+    );
+  }
 };
 
-const Main = ({ navigation }) => {
+const Main = ({ setNewStart }) => {
   return (
     <SafeAreaView
       style={{
@@ -48,14 +52,7 @@ const Main = ({ navigation }) => {
         backgroundColor: "white",
       }}
     >
-      {/* <ImageBackground
-        style={{ width: 100, height: 100 }}
-        source={{
-          uri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==",
-        }}
-      > */}
       <View style={styles.container}>
-        {/* <Image source={require('./assets/adaptive-icon.png')} style= {styles.backgroundImage} resizeMode={Image.resizeMode.sretch}> */}
         <View>
           <View>
             <Text style={styles.mainHeader}>Rakhita</Text>
@@ -81,15 +78,8 @@ const Main = ({ navigation }) => {
             can upload your own song on Rakhita
           </Text>
         </View>
-
-        {/* <GammingImg width={120} height={40} fill={"none"} /> */}
-
-        {/* <TouchableOpacity onPress={openImagePickerAsync} style={styles.button}>
-          <Text style={styles.buttonText}>Pick a photo</Text>
-        </TouchableOpacity> */}
         <TouchableOpacity
           style={{
-            // position: "absolute",
             bottom: 20,
             flexDirection: "row",
             backgroundColor: "#DA1212",
@@ -100,13 +90,11 @@ const Main = ({ navigation }) => {
             textAlign: "center",
             justifyContent: "space-around",
           }}
-          onPress={() => navigation.navigate("Home")}
+          onPress={() => setNewStart(false)}
         >
           <Text
             style={{
               fontSize: 20,
-              // fontFamily: "Roboto-Light",
-              // fontWeight: "bold",
               color: "white",
             }}
           >
@@ -115,7 +103,6 @@ const Main = ({ navigation }) => {
           <MaterialIcons name="arrow-forward-ios" size={22} color="#fff" />
         </TouchableOpacity>
       </View>
-      {/* </ImageBackground> */}
     </SafeAreaView>
   );
 };
@@ -249,11 +236,6 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 20,
     color: "#fff",
-  },
-  thumbnail: {
-    width: 300,
-    height: 300,
-    resizeMode: "contain",
   },
   mainHeader: {
     top: 10,
