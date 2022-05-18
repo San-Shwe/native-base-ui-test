@@ -10,32 +10,11 @@ import {
 } from "react-native";
 
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-// import {
-//   NavigationContainer,
-//   NavigationHelpersContext,
-// } from "@react-navigation/native";
-
-// import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import Home from "./src/components/home";
 
-// const Stack = createNativeStackNavigator();
-
 const App = () => {
-  return (
-    <Main />
-    // <NavigationContainer>
-    //   <Stack.Navigator>
-    //     <Stack.Screen
-    //       name="Main"
-    //       component={Main}
-    //       options={{ headerShown: false }}
-    //     />
-    //     <Stack.Screen name="Home" component={Home} />
-    //     <Stack.Screen name="ImagePickerScreen" component={ImagePickerScreen} />
-    //   </Stack.Navigator>
-    // </NavigationContainer>
-  );
+  return <Main />;
 };
 
 const Main = ({ navigation }) => {
