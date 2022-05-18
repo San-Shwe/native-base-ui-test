@@ -31,7 +31,11 @@ const App = () => {
       <NavigationContainer>
         <StatusBar barStyle="light-content" />
         <Stack.Navigator>
-          <Stack.Screen name="Home" component={Home} />
+          <Stack.Screen
+            name="Home"
+            options={{ headerShown: false }}
+            component={Home}
+          />
           {/* <Stack.Screen
             name="ImagePickerScreen"
             component={ImagePickerScreen}
