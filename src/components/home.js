@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -6,29 +6,86 @@ import {
   Dimensions,
   TouchableOpacity,
   Image,
+  FlatList,
+  Animated,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import * as ImagePicker from "expo-image-picker";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Slider from "@react-native-community/slider";
+import { songs } from "../model/data"; // {songs}, songs
 
 const { width, height } = Dimensions.get("window");
 const Home = () => {
+  // catch animated values
+  const scrollX = useRef(new Animated.Value(0)).current;
+
+  // song index state for song's title and artist name
+  const [songIndex, setSongIndex] = useState(0);
+
+  // song slider ref to catch current song track
+  const songSlider = useRef(0);
+
+  useEffect(() => {
+    scrollX.addListener(({ value }) => {
+      // console.log("Scroll x", scrollX);
+      const index = Math.round(value / width);
+      setSongIndex(index);
+    });
+
+    // remove all listener for skip next and skip previous button
+    return () => {
+      scrollX.removeEventListener();
+    };
+  }, []);
+
+  const skipForward = () => {
+    songSlider.current.scrollToOffset({
+      offset: (songIndex + 1) * width,
+    });
+  };
+  const skipBackward = () => {
+    songSlider.current.scrollToOffset({
+      offset: (songIndex - 1) * width,
+    });
+  };
+
+  // To render songs in music player screen
+  const renderSongs = ({ index, item }) => {
+    return (
+      <Animated.View
+        style={{ width: width, justifyContent: "center", alignItems: "center" }}
+      >
+        <View style={styles.artworkWrapper}>
+          <Image style={styles.artworkImg} source={item.image} />
+        </View>
+      </Animated.View>
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.mainContainer}>
         {/* Artwork Image or Carosel Image */}
-        <View style={styles.artworkWrapper}>
-          <Image
-            source={require("../assets/artwork/Altos-Odyssey.jpeg")}
-            style={styles.artworkImg}
-          />
-        </View>
+        <Animated.FlatList
+          ref={songSlider}
+          data={songs}
+          renderItem={renderSongs}
+          keyExtractor={(item) => item.id}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          scrollEventThrottle={16}
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+            { useNativeDriver: true }
+          )}
+        />
         {/* Song Title and Artist Name */}
         <View>
-          <Text style={styles.songTitle}>Song Title</Text>
-          <Text style={styles.artistName}>Artist Name</Text>
+          <Text style={styles.songTitle}>{songs[songIndex].title}</Text>
+          <Text style={styles.artistName}>{songs[songIndex].artist}</Text>
         </View>
         {/* Slider Bar */}
         <View>
@@ -45,9 +102,10 @@ const Home = () => {
             <Text style={styles.progressLableTxt}>3:50</Text>
           </View>
         </View>
+
         {/* Music Control */}
         <View style={styles.musicControls}>
-          <TouchableOpacity onPress={() => {}}>
+          <TouchableOpacity onPress={skipBackward}>
             <Ionicons
               name="play-skip-back-outline"
               size={35}
@@ -57,7 +115,7 @@ const Home = () => {
           <TouchableOpacity onPress={() => {}}>
             <Ionicons name="pause-circle-outline" size={75} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => {}}>
+          <TouchableOpacity onPress={skipForward}>
             <Ionicons
               name="play-skip-forward-outline"
               size={35}
@@ -266,8 +324,4 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     width: "80%",
   },
-  // container: {
-  //   flex: 1,
-  //   backgroundColor: "#222831",
-  // },
 });
