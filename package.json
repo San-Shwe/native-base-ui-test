@@ -1,5 +1,5 @@
 {
-  "name": "RakhitaMusicApp",
+  "name": "rakhita-music-app",
   "slug": "native-base-ui",
   "description": "This is an awsome app I have ever seen.",
   "version": "1.0.0",
@@ -29,7 +29,7 @@
     "react-native-screens": "~3.10.1",
     "react-native-slider": "^0.11.0",
     "react-native-svg": "12.1.1",
-    "react-native-track-player": "^2.1.3",
+    "react-native-track-player": "^2.0.1",
     "react-native-vector-icons": "^6.7.0",
     "react-native-web": "0.17.1",
     "react-timer-mixin": "^0.13.4",
