@@ -36,7 +36,7 @@ const Home = () => {
 
     // remove all listener for skip next and skip previous button
     return () => {
-      scrollX.removeEventListener();
+      scrollX.removeAllListeners();
     };
   }, []);
 
@@ -68,20 +68,22 @@ const Home = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.mainContainer}>
         {/* Artwork Image or Carosel Image */}
-        <Animated.FlatList
-          ref={songSlider}
-          data={songs}
-          renderItem={renderSongs}
-          keyExtractor={(item) => item.id}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          scrollEventThrottle={16}
-          onScroll={Animated.event(
-            [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-            { useNativeDriver: true }
-          )}
-        />
+        <View style={{ width: width }}>
+          <Animated.FlatList
+            ref={songSlider}
+            data={songs}
+            renderItem={renderSongs}
+            keyExtractor={(item) => item.id}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            scrollEventThrottle={16}
+            onScroll={Animated.event(
+              [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+              { useNativeDriver: true }
+            )}
+          />
+        </View>
         {/* Song Title and Artist Name */}
         <View>
           <Text style={styles.songTitle}>{songs[songIndex].title}</Text>
