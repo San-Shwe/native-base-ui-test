@@ -15,55 +15,9 @@ import * as ImagePicker from "expo-image-picker";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Slider from "@react-native-community/slider";
 import { songs } from "../model/data"; // {songs}, songs
-const track = {
-  image: require("../assets/artwork/Altos-Odyssey.jpeg"),
-  url: "/home/san/Music/Ellie.mp3",
-  title: "Avaritia",
-  artist: "deadmau5",
-  album: "while(1<2)",
-  genre: "Progressive House, Electro House",
-  date: "2014-05-20T07:00:00+00:00", // RFC 3339
-  artwork: "http://example.com/cover.png", // Load artwork from the network
-  duration: 402, // Duration in seconds
-};
-
-import TrackPlayer, {
-  Capability,
-  Event,
-  RepeatMode,
-  State,
-  usePlaybackState,
-  useProgress,
-  useTrackPlayerEvents,
-} from "react-native-track-player";
 
 const { width, height } = Dimensions.get("window");
-
-// setup songs and track player on load
-const setupPlayer = async () => {
-  await TrackPlayer.setupPlayer();
-
-  await TrackPlayer.add(songs);
-
-  // Start playing it
-  await TrackPlayer.play();
-};
-
-// toggle paly and puase function for songs
-const togglePlayback = async (playbackState) => {
-  const currentTrack = await TrackPlayer.getCurrentTrack();
-  if (currentTrack !== null) {
-    if (playbackState == State.Paused) {
-      await TrackPlayer.play();
-    } else {
-      await TrackPlayer.pause();
-    }
-  }
-};
-
 const Home = () => {
-  const playbackState = usePlaybackState();
-
   // catch animated values
   const scrollX = useRef(new Animated.Value(0)).current;
 
@@ -74,9 +28,6 @@ const Home = () => {
   const songSlider = useRef(0);
 
   useEffect(() => {
-    // setup on load -> music player
-    // setupPlayer();
-
     scrollX.addListener(({ value }) => {
       // console.log("Scroll x", scrollX);
       const index = Math.round(value / width);
@@ -85,17 +36,15 @@ const Home = () => {
 
     // remove all listener for skip next and skip previous button
     return () => {
-      scrollX.removeAllListener();
+      scrollX.removeEventListener();
     };
   }, []);
 
-  // skip to next song
   const skipForward = () => {
     songSlider.current.scrollToOffset({
       offset: (songIndex + 1) * width,
     });
   };
-  // back to previous song
   const skipBackward = () => {
     songSlider.current.scrollToOffset({
       offset: (songIndex - 1) * width,
@@ -119,22 +68,20 @@ const Home = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.mainContainer}>
         {/* Artwork Image or Carosel Image */}
-        <View style={{ width: width }}>
-          <Animated.FlatList
-            ref={songSlider}
-            data={songs}
-            renderItem={renderSongs}
-            keyExtractor={(item) => item.id}
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            scrollEventThrottle={16}
-            onScroll={Animated.event(
-              [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-              { useNativeDriver: true }
-            )}
-          />
-        </View>
+        <Animated.FlatList
+          ref={songSlider}
+          data={songs}
+          renderItem={renderSongs}
+          keyExtractor={(item) => item.id}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          scrollEventThrottle={16}
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+            { useNativeDriver: true }
+          )}
+        />
         {/* Song Title and Artist Name */}
         <View>
           <Text style={styles.songTitle}>{songs[songIndex].title}</Text>
@@ -165,15 +112,8 @@ const Home = () => {
               style={{ marginTop: 20 }}
             />
           </TouchableOpacity>
-          <TouchableOpacity onPress={togglePlayback(playbackState)}>
-            <Ionicons
-              name={
-                playbackState == State.Playing
-                  ? "pause-circle-outline"
-                  : "play-circle-outline"
-              }
-              size={75}
-            />
+          <TouchableOpacity onPress={() => {}}>
+            <Ionicons name="pause-circle-outline" size={75} />
           </TouchableOpacity>
           <TouchableOpacity onPress={skipForward}>
             <Ionicons
