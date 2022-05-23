@@ -1,234 +1,129 @@
-import React, { useState } from "react";
-import {
-  SafeAreaView,
-  Image,
-  StyleSheet,
-  TouchableOpacity,
-  Text,
-  View,
-  StatusBar,
-  ImageBackground,
-} from "react-native";
+import React, { useState, useEffect, useMemo } from "react";
+import { StyleSheet, View } from "react-native";
 
-import {
-  NavigationContainer,
-  NavigationHelpersContext,
-  DarkTheme,
-} from "@react-navigation/native";
-
+// IMPORT PACKAGES
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
+import {
+  NavigationContainer,
+  DefaultTheme as NavigationDefaultTheme,
+  DarkTheme as NavigationDarkTheme,
+} from "@react-navigation/native";
+import {
+  Provider as PaperProvider,
+  DefaultTheme as PaperDefaultTheme,
+  DarkTheme as PaperDarkTheme,
+  ActivityIndicator,
+} from "react-native-paper";
 
-import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+// IMPORT COMPONENTS
+import MusicPlayer from "./src/components/MusicPlayer";
+import DrawerContent from "./src/components/DrawerContent";
+import ProfileScreen from "./src/components/ProfileScreen";
+import SupportScreen from "./src/components/SupportScreen";
+import RootStackScreen from "./src/components/RootStackScreen";
+import { AuthContext } from "./src/components/context";
 
 const HomeStack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 
-import Home from "./src/components/home";
-
 const HomeStackScreen = ({ navigation }) => {
   return (
-    // <StatusBar barStyle="light-content" />
     <HomeStack.Navigator>
       <HomeStack.Screen
-        name="Home"
+        name="MusicPlayer"
+        component={MusicPlayer}
         options={{ headerShown: false }}
-        component={Home}
       />
     </HomeStack.Navigator>
   );
 };
 
 const App = () => {
-  const [newStart, setNewStart] = useState(true);
+  // const [newStart, setNewStart] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [userToken, setUserToken] = useState(null);
+  const [isDarkTheme, setIsDarkTheme] = useState(false);
 
-  if (newStart == true) {
-    return <Main setNewStart={setNewStart} />;
-  } else {
-    return (
-      <NavigationContainer theme={DarkTheme}>
-        <Drawer.Navigator initialRouteName="Home">
-          <Drawer.Screen name="Home" component={HomeStackScreen} />
-          {/* <Drawer.Screen name="Notifications" component={NotificationsScreen} /> */}
-        </Drawer.Navigator>
+  // Authentication Status Function
+  const authContext = useMemo(() => ({
+    signIn: () => {
+      setUserToken("dfsdf");
+      setIsLoading(false);
+    },
+    signOut: () => {
+      setUserToken(null);
+      setIsLoading(false);
+    },
+    signUp: () => {
+      setUserToken("dfsdf");
+      setIsLoading(false);
+    },
+    toggleTheme: () => {
+      setIsDarkTheme(!isDarkTheme);
+    },
+  }));
 
-        {/* <StatusBar barStyle="light-content" />
-        <Stack.Navigator>
-          <Stack.Screen
-            name="Home"
-            options={{ headerShown: false }}
-            component={Home}
-          />
-        </Stack.Navigator> */}
-      </NavigationContainer>
-    );
-  }
-};
+  // Loading Screen for App
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+  }, []);
 
-const Main = ({ setNewStart }) => {
-  return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "white",
-      }}
-    >
-      <View style={styles.container}>
-        <View>
-          <View>
-            <Text style={styles.mainHeader}>Rakhita</Text>
-          </View>
-          <View>
-            <Text style={styles.subHeader}>Music App</Text>
-          </View>
-        </View>
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
-          <TouchableOpacity
-            onPress={() => navigation.navigate("ImagePickerScreen")}
-          >
-            <Image
-              source={require("./assets/adaptive-icon.png")}
-              style={styles.logo}
-            />
-          </TouchableOpacity>
-
-          <Text style={styles.instructions}>
-            Rakhita music app is awesome, you can listen online and offline. You
-            can upload your own song on Rakhita
-          </Text>
-        </View>
-        <TouchableOpacity
-          style={{
-            bottom: 20,
-            flexDirection: "row",
-            backgroundColor: "#DA1212",
-            width: "60%",
-            height: 70,
-            padding: 20,
-            borderRadius: 5,
-            textAlign: "center",
-            justifyContent: "space-around",
-          }}
-          onPress={() => setNewStart(false)}
-        >
-          <Text
-            style={{
-              fontSize: 20,
-              color: "white",
-            }}
-          >
-            Let's Began
-          </Text>
-          <MaterialIcons name="arrow-forward-ios" size={22} color="#fff" />
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
-  );
-};
-
-// image picker screen
-const ImagePickerScreen = () => {
-  const [selectedImage, setSelectedImage] = React.useState([]);
-
-  let openImagePickerAsync = async () => {
-    let permissionResult =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    if (permissionResult.granted === false) {
-      alert("Permission to access camera roll is required!");
-      return;
-    }
-
-    let pickerResult = await ImagePicker.launchImageLibraryAsync();
-    console.log(pickerResult);
-
-    if (pickerResult.cancelled === true) {
-      return;
-    }
-
-    setSelectedImage({ localUri: pickerResult.uri });
+  const CustomDefaultTheme = {
+    ...NavigationDefaultTheme,
+    ...PaperDefaultTheme,
+    colors: {
+      ...NavigationDefaultTheme.colors,
+      ...PaperDefaultTheme.colors,
+      text: "#333333",
+    },
   };
 
-  if (selectedImage !== null) {
+  const CustomDarkTheme = {
+    ...NavigationDarkTheme,
+    ...PaperDarkTheme,
+    colors: {
+      ...NavigationDarkTheme.colors,
+      ...PaperDarkTheme.colors,
+      text: "#fff",
+    },
+  };
+
+  const theme = isDarkTheme ? CustomDarkTheme : CustomDefaultTheme;
+
+  if (isLoading) {
     return (
-      <SafeAreaView
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: "white",
-        }}
-      >
-        <View style={styles.container}>
-          {/* {console.log(selectedImage)} */}
-          <Image
-            source={{ uri: selectedImage.localUri }}
-            style={styles.thumbnail}
-          />
-          <TouchableOpacity
-            style={{
-              backgroundColor: "#006E7F",
-              width: 150,
-              height: 50,
-              padding: 10,
-              borderRadius: 5,
-              textAlign: "center",
-            }}
-            onPress={(e) => setSelectedImage(null)}
-          >
-            <Text
-              style={{
-                fontSize: 20,
-                // fontFamily: "Roboto-Light",
-                fontWeight: "bold",
-                color: "white",
-              }}
-            >
-              CLEAR
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" />
+      </View>
     );
   }
 
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "white",
-      }}
-    >
-      <View style={styles.container}>
-        <TouchableOpacity
-          style={{
-            backgroundColor: "#006E7F",
-            width: 150,
-            height: 50,
-            padding: 10,
-            borderRadius: 5,
-            textAlign: "center",
-          }}
-          // onPress={(e) => setSelectedImage(null)}
-        >
-          <Text
-            style={{
-              fontSize: 20,
-              fontWeight: "bold",
-              color: "white",
-            }}
-          >
-            Pick
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+    <PaperProvider theme={theme}>
+      <AuthContext.Provider value={authContext}>
+        <NavigationContainer theme={theme}>
+          {userToken != null ? (
+            <Drawer.Navigator
+              drawerContent={(props) => <DrawerContent {...props} />}
+              initialRouteName="HomeScreen"
+            >
+              <Drawer.Screen
+                name="HomeScreen"
+                component={HomeStackScreen}
+                options={{ headerShown: false }}
+              />
+              <Drawer.Screen name="Profile" component={ProfileScreen} />
+              <Drawer.Screen name="Support" component={SupportScreen} />
+            </Drawer.Navigator>
+          ) : (
+            <RootStackScreen />
+          )}
+        </NavigationContainer>
+      </AuthContext.Provider>
+    </PaperProvider>
   );
 };
 
