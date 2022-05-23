@@ -13,34 +13,53 @@ import {
 import {
   NavigationContainer,
   NavigationHelpersContext,
+  DarkTheme,
 } from "@react-navigation/native";
 
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { createDrawerNavigator } from "@react-navigation/drawer";
 
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
-const Stack = createNativeStackNavigator();
+const HomeStack = createNativeStackNavigator();
+const Drawer = createDrawerNavigator();
+
 import Home from "./src/components/home";
+
+const HomeStackScreen = ({ navigation }) => {
+  return (
+    // <StatusBar barStyle="light-content" />
+    <HomeStack.Navigator>
+      <HomeStack.Screen
+        name="Home"
+        options={{ headerShown: false }}
+        component={Home}
+      />
+    </HomeStack.Navigator>
+  );
+};
 
 const App = () => {
   const [newStart, setNewStart] = useState(true);
+
   if (newStart == true) {
     return <Main setNewStart={setNewStart} />;
   } else {
     return (
-      <NavigationContainer>
-        <StatusBar barStyle="light-content" />
+      <NavigationContainer theme={DarkTheme}>
+        <Drawer.Navigator initialRouteName="Home">
+          <Drawer.Screen name="Home" component={HomeStackScreen} />
+          {/* <Drawer.Screen name="Notifications" component={NotificationsScreen} /> */}
+        </Drawer.Navigator>
+
+        {/* <StatusBar barStyle="light-content" />
         <Stack.Navigator>
           <Stack.Screen
             name="Home"
             options={{ headerShown: false }}
             component={Home}
           />
-          {/* <Stack.Screen
-            name="ImagePickerScreen"
-            component={ImagePickerScreen}
-          /> */}
-        </Stack.Navigator>
+        </Stack.Navigator> */}
       </NavigationContainer>
     );
   }

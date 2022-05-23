@@ -15,54 +15,47 @@ import * as ImagePicker from "expo-image-picker";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Slider from "@react-native-community/slider";
 import { songs } from "../model/data"; // {songs}, songs
-const track = {
-  image: require("../assets/artwork/Altos-Odyssey.jpeg"),
-  url: "/home/san/Music/Ellie.mp3",
-  title: "Avaritia",
-  artist: "deadmau5",
-  album: "while(1<2)",
-  genre: "Progressive House, Electro House",
-  date: "2014-05-20T07:00:00+00:00", // RFC 3339
-  artwork: "http://example.com/cover.png", // Load artwork from the network
-  duration: 402, // Duration in seconds
-};
 
-import TrackPlayer, {
-  Capability,
-  Event,
-  RepeatMode,
-  State,
-  usePlaybackState,
-  useProgress,
-  useTrackPlayerEvents,
-} from "react-native-track-player";
+// import TrackPlayer, {
+//   Capability,
+//   Event,
+//   RepeatMode,
+//   State,
+//   usePlaybackState,
+//   useProgress,
+//   useTrackPlayerEvents,
+// } from "react-native-track-player";
 
 const { width, height } = Dimensions.get("window");
 
 // setup songs and track player on load
-const setupPlayer = async () => {
-  await TrackPlayer.setupPlayer();
+// const setupPlayer = async () => {
+//   try {
+//     await TrackPlayer.setupPlayer();
 
-  await TrackPlayer.add(songs);
+//     await TrackPlayer.add(songs);
 
-  // Start playing it
-  await TrackPlayer.play();
-};
+//     // Start playing it
+//     await TrackPlayer.play();
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
 
 // toggle paly and puase function for songs
-const togglePlayback = async (playbackState) => {
-  const currentTrack = await TrackPlayer.getCurrentTrack();
-  if (currentTrack !== null) {
-    if (playbackState == State.Paused) {
-      await TrackPlayer.play();
-    } else {
-      await TrackPlayer.pause();
-    }
-  }
-};
+// const togglePlayback = async (playbackState) => {
+//   const currentTrack = await TrackPlayer.getCurrentTrack();
+//   if (currentTrack != null) {
+//     if (playbackState == State.Paused) {
+//       await TrackPlayer.play();
+//     } else {
+//       await TrackPlayer.pause();
+//     }
+//   }
+// };
 
 const Home = () => {
-  const playbackState = usePlaybackState();
+  // const playbackState = usePlaybackState();
 
   // catch animated values
   const scrollX = useRef(new Animated.Value(0)).current;
@@ -165,12 +158,12 @@ const Home = () => {
               style={{ marginTop: 20 }}
             />
           </TouchableOpacity>
-          <TouchableOpacity onPress={togglePlayback(playbackState)}>
+          <TouchableOpacity onPress={() => {}}>
             <Ionicons
               name={
-                playbackState == State.Playing
-                  ? "pause-circle-outline"
-                  : "play-circle-outline"
+                //   playbackState == State.Playing
+                //     ? "pause-circle-outline"
+                "play-circle-outline"
               }
               size={75}
             />
