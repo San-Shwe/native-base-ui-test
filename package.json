@@ -20,6 +20,7 @@
     "expo": "~44.0.0",
     "expo-font": "~10.0.4",
     "expo-image-picker": "~12.0.1",
+    "expo-media-library": "~14.0.0",
     "expo-splash-screen": "~0.14.1",
     "expo-status-bar": "~1.2.0",
     "native-base": "^2.8.2",
@@ -29,7 +30,7 @@
     "react-native-gesture-handler": "~2.1.0",
     "react-native-paper": "^4.12.1",
     "react-native-reanimated": "~2.3.1",
-    "react-native-safe-area-context": "3.3.2",
+    "react-native-safe-area-context": "^3.3.2",
     "react-native-screens": "~3.10.1",
     "react-native-slider": "^0.11.0",
     "react-native-svg": "12.1.1",
@@ -37,6 +38,7 @@
     "react-native-web": "0.17.1",
     "react-navigation": "^4.4.4",
     "react-timer-mixin": "^0.13.4",
+    "recyclerlistview": "^3.0.5",
     "uri-scheme": "^1.0.119"
   },
   "devDependencies": {

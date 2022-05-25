@@ -23,6 +23,8 @@ import ProfileScreen from "./src/components/ProfileScreen";
 import SupportScreen from "./src/components/SupportScreen";
 import RootStackScreen from "./src/components/RootStackScreen";
 import { AuthContext } from "./src/components/context";
+import AudioList from "./src/components/AudioList";
+import { AudioProvider } from "./src/components/AudioProvider";
 
 const HomeStack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -104,24 +106,27 @@ const App = () => {
   return (
     <PaperProvider theme={theme}>
       <AuthContext.Provider value={authContext}>
-        <NavigationContainer theme={theme}>
-          {userToken != null ? (
-            <Drawer.Navigator
-              drawerContent={(props) => <DrawerContent {...props} />}
-              initialRouteName="HomeScreen"
-            >
-              <Drawer.Screen
-                name="HomeScreen"
-                component={HomeStackScreen}
-                options={{ headerShown: false }}
-              />
-              <Drawer.Screen name="Profile" component={ProfileScreen} />
-              <Drawer.Screen name="Support" component={SupportScreen} />
-            </Drawer.Navigator>
-          ) : (
-            <RootStackScreen />
-          )}
-        </NavigationContainer>
+        <AudioProvider>
+          <NavigationContainer theme={theme}>
+            {userToken != null ? (
+              <Drawer.Navigator
+                drawerContent={(props) => <DrawerContent {...props} />}
+                initialRouteName="HomeScreen"
+              >
+                <Drawer.Screen
+                  name="HomeScreen"
+                  component={HomeStackScreen}
+                  options={{ headerShown: false }}
+                />
+                <Drawer.Screen name="Profile" component={ProfileScreen} />
+                <Drawer.Screen name="Support" component={SupportScreen} />
+                <Drawer.Screen name="AudioList" component={AudioList} />
+              </Drawer.Navigator>
+            ) : (
+              <RootStackScreen />
+            )}
+          </NavigationContainer>
+        </AudioProvider>
       </AuthContext.Provider>
     </PaperProvider>
   );

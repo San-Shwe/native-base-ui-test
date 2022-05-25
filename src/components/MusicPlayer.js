@@ -153,7 +153,11 @@ const MusicPlayer = ({ navigation }) => {
               style={{ marginTop: 20 }}
             />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => {}}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("AudioList");
+            }}
+          >
             <Ionicons
               name={
                 //   playbackState == State.Playing
