@@ -18,7 +18,10 @@ export class AudioProvider extends Component {
       currentAudio: {}, // current playing audio data
       isPlaying: false,
       currentAudioIndex: null,
+      playbackPosition: null, // to calculate current position
+      playbackDuration: null, // to calculate current position
     };
+    this.totalAudioCount = 0;
   }
 
   // alert box for permission
@@ -39,6 +42,7 @@ export class AudioProvider extends Component {
       mediaType: "audio",
       first: media.totalCount,
     });
+    this.totalAudioCount = media.totalCount;
 
     // console.log(media);
     // add songs tracks json file to state
@@ -107,6 +111,8 @@ export class AudioProvider extends Component {
       currentAudio,
       isPlaying,
       currentAudioIndex,
+      playbackPosition, // to calculate current position
+      playbackDuration,
     } = this.state;
     // show this screen if user denined audio permission
     if (permissionError) {
@@ -133,6 +139,9 @@ export class AudioProvider extends Component {
           updateState: this.updateState,
           isPlaying,
           currentAudioIndex,
+          totalAudioCount: this.totalAudioCount,
+          playbackPosition,
+          playbackDuration,
         }}
       >
         {this.props.children}

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useContext } from "react";
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import * as ImagePicker from "expo-image-picker";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Slider from "@react-native-community/slider";
 import { songs } from "../model/data"; // {songs}, songs
+import { AudioContext } from "./AudioProvider";
 
 // import TrackPlayer, {
 //   Capability,
@@ -55,6 +56,19 @@ const { width, height } = Dimensions.get("window");
 // };
 
 const MusicPlayer = ({ navigation }) => {
+  // context
+  const context = useContext(AudioContext);
+  const { playbackPosition, playbackDuration } = context;
+
+  const calculateSeebBar = () => {
+    console.log(playbackDuration);
+    if (playbackDuration !== null && playbackPosition !== null) {
+      // console.log(playbackPosition / playbackDuration);
+      return playbackPosition / playbackDuration;
+    }
+    return 0;
+  };
+
   // const playbackState = usePlaybackState();
 
   // catch animated values
@@ -106,6 +120,9 @@ const MusicPlayer = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.mainContainer}>
+        <Text>{`${context.currentAudioIndex + 1} / ${
+          context.totalAudioCount
+        }`}</Text>
         {/* Artwork Image or Carosel Image */}
         <View style={{ width: width }}>
           <Animated.FlatList
@@ -125,15 +142,18 @@ const MusicPlayer = ({ navigation }) => {
         </View>
         {/* Song Title and Artist Name */}
         <View>
-          <Text style={styles.songTitle}>{songs[songIndex].title}</Text>
-          <Text style={styles.artistName}>{songs[songIndex].artist}</Text>
+          <Text style={styles.songTitle}>
+            {context.audioFile.filename || "Unknown"}
+          </Text>
+          <Text style={styles.artistName}>Unknown</Text>
         </View>
         {/* Slider Bar */}
         <View>
           <Slider
             style={styles.progressContainer}
             minimumValue={0}
-            maximumValue={100}
+            maximumValue={1}
+            value={calculateSeebBar()}
             minimumTrackTintColor="#000000"
             maximumTrackTintColor="#FFFFFF"
             onSlidingComplete={() => {}}
@@ -160,9 +180,9 @@ const MusicPlayer = ({ navigation }) => {
           >
             <Ionicons
               name={
-                //   playbackState == State.Playing
-                //     ? "pause-circle-outline"
-                "play-circle-outline"
+                context.isPlaying
+                  ? "pause-circle-outline"
+                  : "play-circle-outline"
               }
               size={75}
             />
@@ -191,6 +211,16 @@ const MusicPlayer = ({ navigation }) => {
 
           <TouchableOpacity onPress={() => {}}>
             <Ionicons name="share-social-outline" size={30} />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => {}}>
+            <Ionicons
+              name="list-outline"
+              onPress={() => {
+                navigation.navigate("AudioList");
+              }}
+              size={30}
+            />
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => navigation.openDrawer()}>

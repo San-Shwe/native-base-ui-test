@@ -36,6 +36,17 @@ export class AudioList extends Component {
     }
   );
 
+  // update status
+  onPlaybackStatusUpdate = (playbackStatus) => {
+    console.log(playbackStatus);
+    if (playbackStatus.isLoaded && playbackStatus.isPlaying) {
+      this.context.updateState(this.context, {
+        playbackPosition: playbackStatus.positionMillis, // set current position
+        playbackDuration: playbackStatus.durationMillis, // set current audio duration
+      });
+    }
+  };
+
   // play music when click --------------------------start-------------------------------------
   handleAudioPress = async (audio) => {
     const {
@@ -46,7 +57,6 @@ export class AudioList extends Component {
       isPlaying,
       audioFile,
     } = this.context; // states from AudioProvider
-    console.log("audio is - ", isPlaying);
 
     // playing audio for the first time > just once
     if (soundObj === null) {
@@ -55,13 +65,14 @@ export class AudioList extends Component {
       // get current audio index
       const index = audioFile.indexOf(audio);
       // set current music status to state and Exit function
-      return updateState(this.context, {
+      updateState(this.context, {
         currentAudio: audio,
         playbackObj: playbackObj,
         soundObj: status,
         isPlaying: true,
         currentAudioIndex: index,
       });
+      return playbackObj.setOnPlaybackStatusUpdate(this.onPlaybackStatusUpdate);
     }
 
     // pause audio > if playing
@@ -142,6 +153,7 @@ export class AudioList extends Component {
                 rowRenderer={this.rowRenderer}
                 extendedState={{ isPlaying }}
               />
+
               {/* show Option [paly and add to playlist] when click to eclipse icon */}
               <OptionModal
                 currentItem={this.currentItem}
