@@ -8,7 +8,13 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import color from "./color";
-const OptionModal = ({ visible, onClose, currentItem }) => {
+const OptionModal = ({
+  visible,
+  onClose,
+  currentItem,
+  onPlayPress,
+  onPlayListPress,
+}) => {
   const { filename } = currentItem;
   return (
     <>
@@ -19,11 +25,14 @@ const OptionModal = ({ visible, onClose, currentItem }) => {
             {filename}
           </Text>
           <View style={styles.optionContainer}>
-            <Text style={styles.option}>Play</Text>
-            <Text style={styles.option}>Add to Playlist</Text>
+            <TouchableWithoutFeedback onPress={onPlayPress}>
+              <Text style={styles.option}>Play</Text>
+            </TouchableWithoutFeedback>
+            <TouchableWithoutFeedback onPress={onPlayListPress}>
+              <Text style={styles.option}>Add to Playlist</Text>
+            </TouchableWithoutFeedback>
           </View>
         </View>
-
         <TouchableWithoutFeedback onPress={onClose}>
           {/* Background for Modal */}
           <View style={styles.modalBg} />

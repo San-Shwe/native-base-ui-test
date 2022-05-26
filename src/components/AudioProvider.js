@@ -13,6 +13,11 @@ export class AudioProvider extends Component {
       audioFile: [],
       permissionError: false,
       dataProvider: new DataProvider((r1, r2) => r1 !== r2),
+      soundObj: null, // current songs status eg. playing or pause or loading
+      playbackObj: null, // this can change current song activities
+      currentAudio: {}, // current playing audio data
+      isPlaying: false,
+      currentAudioIndex: null,
     };
   }
 
@@ -87,8 +92,22 @@ export class AudioProvider extends Component {
     this.getPermission();
   }
 
+  // to update my state from other palce
+  updateState = (prevState, newState = {}) => {
+    this.setState({ ...prevState, ...newState });
+  };
+
   render() {
-    const { audioFile, permissionError, dataProvider } = this.state;
+    const {
+      audioFile,
+      permissionError,
+      dataProvider,
+      playbackObj,
+      soundObj,
+      currentAudio,
+      isPlaying,
+      currentAudioIndex,
+    } = this.state;
     // show this screen if user denined audio permission
     if (permissionError) {
       return (
@@ -104,7 +123,17 @@ export class AudioProvider extends Component {
     }
     return (
       <AudioContext.Provider
-        value={{ audioFile, dataProvider, name: "San Shwe" }}
+        value={{
+          audioFile,
+          dataProvider,
+          playbackObj,
+          soundObj,
+          currentAudio,
+          name: "San Shwe",
+          updateState: this.updateState,
+          isPlaying,
+          currentAudioIndex,
+        }}
       >
         {this.props.children}
       </AudioContext.Provider>

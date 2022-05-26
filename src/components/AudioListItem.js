@@ -1,5 +1,11 @@
-import React, { Component } from "react";
-import { Text, View, StyleSheet, Dimensions } from "react-native";
+import React from "react";
+import {
+  Text,
+  View,
+  StyleSheet,
+  Dimensions,
+  TouchableWithoutFeedback,
+} from "react-native";
 import color from "./color";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
@@ -30,29 +36,69 @@ const convertTime = (minutes) => {
   }
 };
 
-const AudioListItem = ({ title, duration, onOptionPress }) => {
+const renderPlayPauseIcon = (isPlaying) => {
+  if (isPlaying) {
+    return (
+      <Ionicons name="pause-outline" size={25} style={{ color: "#fff" }} />
+    );
+  } else {
+    return <Ionicons name="play-outline" size={25} style={{ color: "#fff" }} />;
+  }
+};
+
+const AudioListItem = ({
+  title,
+  duration,
+  onOptionPress,
+  onAudioPress,
+  isPlaying,
+  activeListItem,
+}) => {
   return (
     <>
       <View style={styles.container}>
-        <View style={styles.leftContainer}>
-          <View style={styles.thumbnail}>
-            <Text style={styles.thumbnailText}>{getThumbnailText(title)}</Text>
+        <TouchableWithoutFeedback onPress={onAudioPress}>
+          <View style={styles.leftContainer}>
+            <View
+              style={[
+                styles.thumbnail,
+                {
+                  backgroundColor: activeListItem
+                    ? color.ACTIVE_BG
+                    : color.FONT_LIGHT,
+                },
+              ]}
+            >
+              <Text style={styles.thumbnailText}>
+                {activeListItem
+                  ? renderPlayPauseIcon(isPlaying)
+                  : getThumbnailText(title)}
+                {/* {renderPlayPauseIcon(isPlaying)} */}
+              </Text>
+            </View>
+            <View style={styles.titleContainer}>
+              <Text
+                numberOfLines={1}
+                style={[
+                  styles.title,
+                  {
+                    color: activeListItem ? color.ACTIVE_BG : color.FONT_LIGHT,
+                  },
+                ]}
+              >
+                {title}
+              </Text>
+              <Text numberOfLines={1} style={styles.timeTxt}>
+                {convertTime(duration)}
+              </Text>
+            </View>
           </View>
-          <View style={styles.titleContainer}>
-            <Text numberOfLines={1} style={styles.title}>
-              {title}
-            </Text>
-            <Text numberOfLines={1} style={styles.timeTxt}>
-              {convertTime(duration)}
-            </Text>
-          </View>
-        </View>
+        </TouchableWithoutFeedback>
         <View style={styles.rightContainer}>
           <Ionicons
             onPress={onOptionPress} // work onOptionPress function on parent component
             name="ellipsis-vertical-outline"
-            size={35}
-            style={{ marginTop: 20 }}
+            size={25}
           />
         </View>
       </View>
