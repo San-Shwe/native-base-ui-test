@@ -16,15 +16,21 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import Slider from "@react-native-community/slider";
 import { songs } from "../model/data"; // {songs}, songs
 import { AudioContext } from "./AudioProvider";
-import { play, pause, resume } from "./AudioController";
+import { play, pause, resume, playNext } from "./AudioController";
+import { storeAddioForNextOpening } from "./storeHelper";
 
 const { width, height } = Dimensions.get("window");
 
 const MusicPlayer = ({ navigation }) => {
   // context
   const context = useContext(AudioContext);
-  const { playbackPosition, playbackDuration, audioFile, currentAudioIndex } =
-    context;
+  const { playbackPosition, playbackDuration } = context;
+
+  useEffect(() => {
+    context.loadPreviousAudio();
+    console.log("use Effect");
+  }, []);
+
   const calculateSeebBar = () => {
     if (playbackDuration !== null && playbackPosition !== null) {
       return playbackPosition / playbackDuration;
@@ -41,36 +47,106 @@ const MusicPlayer = ({ navigation }) => {
   // song slider ref to catch current song track
   const songSlider = useRef(0);
 
-  useEffect(() => {
-    scrollX.addListener(({ value }) => {
-      // console.log("Scroll x", scrollX);
-      const index = Math.round(value / width);
-      setSongIndex(index);
+  // useEffect(() => {
+  //   scrollX.addListener(({ value }) => {
+  //     // console.log("Scroll x", scrollX);
+  //     const index = Math.round(value / width);
+  //     setSongIndex(index);
+  //   });
+  //   // remove all listener for skip next and skip previous button
+  //   return () => {
+  //     scrollX.removeAllListeners();
+  //   };
+  // }, []);
+
+  // skip to next audio ---------------------------------------------------------
+  const skipForward = async () => {
+    const { isLoaded } = await context.playbackObj.getStatusAsync();
+    const isLastAudio =
+      context.currentAudioIndex + 1 === context.totalAudioCount;
+    let audio = context.audioFile[context.currentAudioIndex + 1];
+    let index;
+    let status;
+    if (!isLoaded && !isLastAudio) {
+      // if audio is new
+      index = context.currentAudioIndex + 1;
+      status = await play(context.playbackObj, audio.uri);
+    }
+
+    if (isLoaded && !isLastAudio) {
+      // if it is loaded but not last audio
+      index = context.currentAudioIndex + 1;
+      status = await playNext(context.playbackObj, audio.uri);
+    }
+
+    if (isLastAudio) {
+      //
+      index = 0;
+      audio = context.audio;
+      if (isLoaded) {
+        status = await playNext(context.playbackObj, audio.uri);
+      } else {
+        status = await play(context.playbackObj, audio.uri);
+      }
+    }
+
+    context.updateState(context, {
+      currentAudio: audio,
+      soundObj: status,
+      isPlaying: true,
+      currentAudioIndex: index,
     });
-    // remove all listener for skip next and skip previous button
-    return () => {
-      scrollX.removeAllListeners();
-    };
-  }, []);
+    storeAddioForNextOpening(audio, index);
 
-  useEffect(() => {
-    context.loadPreviousAudio();
-    console.log("use Effect");
-  }, []);
-
-  const skipForward = () => {
-    // console.log(audioFile);
+    // move next slider
     songSlider.current.scrollToOffset({
       offset: (songIndex + 1) * width,
     });
   };
-  const skipBackward = () => {
-    // console.log(audioFile);
-    // console.log(context.audioFile.filename);
+  // ----------------------------------------------------------------------------
+  // skip to previous audio ----------------------start--------------------------------
+  const skipBackward = async () => {
+    const { isLoaded } = await context.playbackObj.getStatusAsync();
+    const isFirstAudio = context.currentAudioIndex <= 0;
+    let audio = context.audioFile[context.currentAudioIndex - 1];
+    let index;
+    let status;
+    if (!isLoaded && !isFirstAudio) {
+      // if audio is new
+      index = context.currentAudioIndex - 1;
+      status = await play(context.playbackObj, audio.uri);
+    }
+
+    if (isLoaded && !isFirstAudio) {
+      // if it is loaded but not last audio
+      index = context.currentAudioIndex - 1;
+      status = await playNext(context.playbackObj, audio.uri);
+    }
+
+    if (isFirstAudio) {
+      index = context.totalAudioCount - 1;
+      audio = context.audio;
+      if (isLoaded) {
+        status = await playNext(context.playbackObj, audio.uri);
+      } else {
+        status = await play(context.playbackObj, audio.uri);
+      }
+    }
+
+    context.updateState(context, {
+      currentAudio: audio,
+      soundObj: status,
+      isPlaying: true,
+      currentAudioIndex: index,
+    });
+    storeAddioForNextOpening(audio, index);
+
+    // move previous slider
     songSlider.current.scrollToOffset({
       offset: (songIndex - 1) * width,
     });
   };
+  //-----------------------------end-------------------------
 
   // To render songs in music player screen
   const renderSongs = ({ index, item }) => {

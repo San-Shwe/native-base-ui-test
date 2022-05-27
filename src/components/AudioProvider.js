@@ -113,6 +113,7 @@ export class AudioProvider extends Component {
       previousAudio = JSON.parse(previousAudio); // reconvert json format
       currentAudio = previousAudio.audio; // assign to currentAudio
       currentAudioIndex = previousAudio.index; // assign current audio index
+      console.log(currentAudioIndex);
     }
     this.setState({ ...this.state, currentAudio, currentAudioIndex }); //
   };
