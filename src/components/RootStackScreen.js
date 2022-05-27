@@ -9,9 +9,15 @@ import {
 } from "react-native";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { AuthContext } from "./context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const RootStackScreen = ({ navigation }) => {
   const { signIn } = React.useContext(AuthContext);
+
+  // clear data if error occur developer
+  const removeData = async () => {
+    await AsyncStorage.removeItem("previousAudio");
+  };
 
   return (
     <SafeAreaView
@@ -34,7 +40,7 @@ const RootStackScreen = ({ navigation }) => {
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
-          <TouchableOpacity>
+          <TouchableOpacity onPress={removeData}>
             <Image
               source={require("../assets/img/adaptive-icon.png")}
               style={styles.logo}

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useContext } from "react";
 import {
   View,
   Text,
@@ -15,47 +15,28 @@ import * as ImagePicker from "expo-image-picker";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Slider from "@react-native-community/slider";
 import { songs } from "../model/data"; // {songs}, songs
-
-// import TrackPlayer, {
-//   Capability,
-//   Event,
-//   RepeatMode,
-//   State,
-//   usePlaybackState,
-//   useProgress,
-//   useTrackPlayerEvents,
-// } from "react-native-track-player";
+import { AudioContext } from "./AudioProvider";
+import { play, pause, resume, playNext } from "./AudioController";
+import { storeAddioForNextOpening } from "./storeHelper";
 
 const { width, height } = Dimensions.get("window");
 
-// setup songs and track player on load
-// const setupPlayer = async () => {
-//   try {
-//     await TrackPlayer.setupPlayer();
-
-//     await TrackPlayer.add(songs);
-
-//     // Start playing it
-//     await TrackPlayer.play();
-//   } catch (e) {
-//     console.log(e);
-//   }
-// };
-
-// toggle paly and puase function for songs
-// const togglePlayback = async (playbackState) => {
-//   const currentTrack = await TrackPlayer.getCurrentTrack();
-//   if (currentTrack != null) {
-//     if (playbackState == State.Paused) {
-//       await TrackPlayer.play();
-//     } else {
-//       await TrackPlayer.pause();
-//     }
-//   }
-// };
-
 const MusicPlayer = ({ navigation }) => {
-  // const playbackState = usePlaybackState();
+  // context
+  const context = useContext(AudioContext);
+  const { playbackPosition, playbackDuration } = context;
+
+  useEffect(() => {
+    context.loadPreviousAudio();
+    console.log("use Effect");
+  }, []);
+
+  const calculateSeebBar = () => {
+    if (playbackDuration !== null && playbackPosition !== null) {
+      return playbackPosition / playbackDuration;
+    }
+    return 0;
+  };
 
   // catch animated values
   const scrollX = useRef(new Animated.Value(0)).current;
@@ -66,29 +47,106 @@ const MusicPlayer = ({ navigation }) => {
   // song slider ref to catch current song track
   const songSlider = useRef(0);
 
-  useEffect(() => {
-    scrollX.addListener(({ value }) => {
-      // console.log("Scroll x", scrollX);
-      const index = Math.round(value / width);
-      setSongIndex(index);
+  // useEffect(() => {
+  //   scrollX.addListener(({ value }) => {
+  //     // console.log("Scroll x", scrollX);
+  //     const index = Math.round(value / width);
+  //     setSongIndex(index);
+  //   });
+  //   // remove all listener for skip next and skip previous button
+  //   return () => {
+  //     scrollX.removeAllListeners();
+  //   };
+  // }, []);
+
+  // skip to next audio ---------------------------------------------------------
+  const skipForward = async () => {
+    const { isLoaded } = await context.playbackObj.getStatusAsync();
+    const isLastAudio =
+      context.currentAudioIndex + 1 === context.totalAudioCount;
+    let audio = context.audioFile[context.currentAudioIndex + 1];
+    let index;
+    let status;
+    if (!isLoaded && !isLastAudio) {
+      // if audio is new
+      index = context.currentAudioIndex + 1;
+      status = await play(context.playbackObj, audio.uri);
+    }
+
+    if (isLoaded && !isLastAudio) {
+      // if it is loaded but not last audio
+      index = context.currentAudioIndex + 1;
+      status = await playNext(context.playbackObj, audio.uri);
+    }
+
+    if (isLastAudio) {
+      //
+      index = 0;
+      audio = context.audio;
+      if (isLoaded) {
+        status = await playNext(context.playbackObj, audio.uri);
+      } else {
+        status = await play(context.playbackObj, audio.uri);
+      }
+    }
+
+    context.updateState(context, {
+      currentAudio: audio,
+      soundObj: status,
+      isPlaying: true,
+      currentAudioIndex: index,
     });
+    storeAddioForNextOpening(audio, index);
 
-    // remove all listener for skip next and skip previous button
-    return () => {
-      scrollX.removeAllListeners();
-    };
-  }, []);
-
-  const skipForward = () => {
+    // move next slider
     songSlider.current.scrollToOffset({
       offset: (songIndex + 1) * width,
     });
   };
-  const skipBackward = () => {
+  // ----------------------------------------------------------------------------
+  // skip to previous audio ----------------------start--------------------------------
+  const skipBackward = async () => {
+    const { isLoaded } = await context.playbackObj.getStatusAsync();
+    const isFirstAudio = context.currentAudioIndex <= 0;
+    let audio = context.audioFile[context.currentAudioIndex - 1];
+    let index;
+    let status;
+    if (!isLoaded && !isFirstAudio) {
+      // if audio is new
+      index = context.currentAudioIndex - 1;
+      status = await play(context.playbackObj, audio.uri);
+    }
+
+    if (isLoaded && !isFirstAudio) {
+      // if it is loaded but not last audio
+      index = context.currentAudioIndex - 1;
+      status = await playNext(context.playbackObj, audio.uri);
+    }
+
+    if (isFirstAudio) {
+      index = context.totalAudioCount - 1;
+      audio = context.audio;
+      if (isLoaded) {
+        status = await playNext(context.playbackObj, audio.uri);
+      } else {
+        status = await play(context.playbackObj, audio.uri);
+      }
+    }
+
+    context.updateState(context, {
+      currentAudio: audio,
+      soundObj: status,
+      isPlaying: true,
+      currentAudioIndex: index,
+    });
+    storeAddioForNextOpening(audio, index);
+
+    // move previous slider
     songSlider.current.scrollToOffset({
       offset: (songIndex - 1) * width,
     });
   };
+  //-----------------------------end-------------------------
 
   // To render songs in music player screen
   const renderSongs = ({ index, item }) => {
@@ -103,9 +161,48 @@ const MusicPlayer = ({ navigation }) => {
     );
   };
 
+  // toggle paly and puase function for songs ----------------------------------------
+  const handlePlayPause = async () => {
+    // play > playing for the first time
+    if (context.soundObj === null) {
+      const audio = context.currentAudio;
+      const status = await play(context.playbackObj, audio.uri);
+      return context.updateState(context, {
+        currentAudio: audio,
+        soundObj: status,
+        isPlaying: true,
+        currentAudioIndex: context.currentAudioIndex,
+      });
+    }
+
+    // pause
+    if (context.soundObj && context.soundObj.isPlaying) {
+      const status = pause(context.playbackObj);
+      return context.updateState(context, {
+        soundObj: status,
+        isPlaying: false,
+      });
+    }
+
+    // resume
+    if (context.soundObj && !context.soundObj.isPlaying) {
+      const status = resume(context.playbackObj);
+      return context.updateState(context, {
+        soundObj: status,
+        isPlaying: true,
+      });
+    }
+  };
+  // ---------------------------------------------- ----------------------------------------
+
+  if (!context.currentAudio) return null;
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.mainContainer}>
+        <Text>{`${context.currentAudioIndex + 1} / ${
+          context.totalAudioCount
+        }`}</Text>
         {/* Artwork Image or Carosel Image */}
         <View style={{ width: width }}>
           <Animated.FlatList
@@ -125,15 +222,16 @@ const MusicPlayer = ({ navigation }) => {
         </View>
         {/* Song Title and Artist Name */}
         <View>
-          <Text style={styles.songTitle}>{songs[songIndex].title}</Text>
-          <Text style={styles.artistName}>{songs[songIndex].artist}</Text>
+          <Text style={styles.songTitle}>{context.currentAudio.filename}</Text>
+          <Text style={styles.artistName}>Unknown</Text>
         </View>
         {/* Slider Bar */}
         <View>
           <Slider
             style={styles.progressContainer}
             minimumValue={0}
-            maximumValue={100}
+            maximumValue={1}
+            value={calculateSeebBar()}
             minimumTrackTintColor="#000000"
             maximumTrackTintColor="#FFFFFF"
             onSlidingComplete={() => {}}
@@ -153,12 +251,16 @@ const MusicPlayer = ({ navigation }) => {
               style={{ marginTop: 20 }}
             />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => {}}>
+          <TouchableOpacity
+            onPress={() => {
+              handlePlayPause();
+            }}
+          >
             <Ionicons
               name={
-                //   playbackState == State.Playing
-                //     ? "pause-circle-outline"
-                "play-circle-outline"
+                context.isPlaying
+                  ? "pause-circle-outline"
+                  : "play-circle-outline"
               }
               size={75}
             />
@@ -189,112 +291,20 @@ const MusicPlayer = ({ navigation }) => {
             <Ionicons name="share-social-outline" size={30} />
           </TouchableOpacity>
 
+          <TouchableOpacity onPress={() => {}}>
+            <Ionicons
+              name="list-outline"
+              onPress={() => {
+                navigation.navigate("AudioList");
+              }}
+              size={30}
+            />
+          </TouchableOpacity>
+
           <TouchableOpacity onPress={() => navigation.openDrawer()}>
             <Ionicons name="ellipsis-horizontal-outline" size={30} />
           </TouchableOpacity>
         </View>
-      </View>
-    </SafeAreaView>
-  );
-};
-
-// image picker screen
-const ImagePickerScreen = () => {
-  const [selectedImage, setSelectedImage] = React.useState([]);
-
-  let openImagePickerAsync = async () => {
-    let permissionResult =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    if (permissionResult.granted === false) {
-      alert("Permission to access camera roll is required!");
-      return;
-    }
-
-    let pickerResult = await ImagePicker.launchImageLibraryAsync();
-    console.log(pickerResult);
-
-    if (pickerResult.cancelled === true) {
-      return;
-    }
-
-    setSelectedImage({ localUri: pickerResult.uri });
-  };
-
-  if (selectedImage !== null) {
-    return (
-      <SafeAreaView
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: "white",
-        }}
-      >
-        <View style={styles.container}>
-          {/* {console.log(selectedImage)} */}
-          <Image
-            source={{ uri: selectedImage.localUri }}
-            style={styles.thumbnail}
-          />
-          <TouchableOpacity
-            style={{
-              backgroundColor: "#006E7F",
-              width: 150,
-              height: 50,
-              padding: 10,
-              borderRadius: 5,
-              textAlign: "center",
-            }}
-            onPress={(e) => setSelectedImage(null)}
-          >
-            <Text
-              style={{
-                fontSize: 20,
-                // fontFamily: "Roboto-Light",
-                fontWeight: "bold",
-                color: "white",
-              }}
-            >
-              CLEAR
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "white",
-      }}
-    >
-      <View style={styles.container}>
-        <TouchableOpacity
-          style={{
-            backgroundColor: "#006E7F",
-            width: 150,
-            height: 50,
-            padding: 10,
-            borderRadius: 5,
-            textAlign: "center",
-          }}
-          // onPress={(e) => setSelectedImage(null)}
-        >
-          <Text
-            style={{
-              fontSize: 20,
-              fontWeight: "bold",
-              color: "white",
-            }}
-          >
-            Pick
-          </Text>
-        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
