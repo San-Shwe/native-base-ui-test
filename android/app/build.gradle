@@ -132,7 +132,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.nativebaseui"
+        applicationId "com.android_app.rakhita_music_app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

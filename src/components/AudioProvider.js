@@ -2,9 +2,9 @@ import React, { Component, createContext } from "react";
 import { Text, View, Alert } from "react-native";
 import * as MediaLibrary from "expo-media-library";
 import { DataProvider } from "recyclerlistview";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Audio } from "expo-av";
 export const AudioContext = createContext();
-export const MyContext = React.createContext("Hello React");
 
 export class AudioProvider extends Component {
   constructor(props) {
@@ -44,14 +44,12 @@ export class AudioProvider extends Component {
     });
     this.totalAudioCount = media.totalCount;
 
-    // console.log(media);
     // add songs tracks json file to state
     this.setState({
       ...this.state,
       audioFile: [...audioFile, ...media.assets],
       dataProvider: dataProvider.cloneWithRows([...audioFile, ...media.assets]),
     });
-    console.log(media.assets.length);
   };
 
   getPermission = async () => {
@@ -94,11 +92,29 @@ export class AudioProvider extends Component {
   // do on load
   componentDidMount() {
     this.getPermission();
+    if (this.state.playbackObj === null) {
+      this.setState({ ...this.state, playbackObj: new Audio.Sound() });
+    }
   }
 
   // to update my state from other palce
   updateState = (prevState, newState = {}) => {
     this.setState({ ...prevState, ...newState });
+  };
+
+  loadPreviousAudio = async () => {
+    let previousAudio = await AsyncStorage.getItem("previousAudio"); // get the item that we store
+    let currentAudio;
+    let currentAudioIndex;
+    if (previousAudio === null) {
+      currentAudio = this.state.audioFile[0]; // set first audio if there is no audio in storage
+      currentAudioIndex = 0;
+    } else {
+      previousAudio = JSON.parse(previousAudio); // reconvert json format
+      currentAudio = previousAudio.audio; // assign to currentAudio
+      currentAudioIndex = previousAudio.index; // assign current audio index
+    }
+    this.setState({ ...this.state, currentAudio, currentAudioIndex }); //
   };
 
   render() {
@@ -135,13 +151,13 @@ export class AudioProvider extends Component {
           playbackObj,
           soundObj,
           currentAudio,
-          name: "San Shwe",
-          updateState: this.updateState,
           isPlaying,
           currentAudioIndex,
           totalAudioCount: this.totalAudioCount,
           playbackPosition,
           playbackDuration,
+          updateState: this.updateState,
+          loadPreviousAudio: this.loadPreviousAudio,
         }}
       >
         {this.props.children}

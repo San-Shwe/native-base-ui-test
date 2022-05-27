@@ -7,6 +7,7 @@ import Screen from "./Screen";
 import OptionModal from "./OptionModal";
 import { Audio } from "expo-av";
 import { play, pause, resume, playNext } from "./AudioController";
+import { storeAddioForNextOpening } from "./storeHelper";
 
 export class AudioList extends Component {
   static contextType = AudioContext; // class rule - to use audio object
@@ -37,13 +38,43 @@ export class AudioList extends Component {
   );
 
   // update status
-  onPlaybackStatusUpdate = (playbackStatus) => {
-    console.log(playbackStatus);
+  onPlaybackStatusUpdate = async (playbackStatus) => {
     if (playbackStatus.isLoaded && playbackStatus.isPlaying) {
       this.context.updateState(this.context, {
         playbackPosition: playbackStatus.positionMillis, // set current position
         playbackDuration: playbackStatus.durationMillis, // set current audio duration
       });
+    }
+
+    // play next audio if finished current audio
+    if (playbackStatus.didJustFinish) {
+      const nextAudioIndex = this.context.currentAudioIndex + 1;
+
+      // if there is no audio to play
+      if (nextAudioIndex >= this.context.totalAudioCount) {
+        this.context.playbackObj.unloadAsync();
+        // return await play(playbackObj, uri);
+        this.context.updateState(this.context, {
+          currentAudio: this.context.audioFile[0],
+          soundObj: null,
+          isPlaying: false,
+          currentAudioIndex: [0],
+          playbackPosition: null,
+          playbackDuration: null,
+        });
+        return await storeAddioForNextOpening(this.context.audioFile[0], 0);
+      }
+
+      // /otherwise play the next song
+      const audio = this.context.audioFile[nextAudioIndex];
+      const status = await playNext(this.context.playbackObj, audio.uri);
+      this.context.updateState(this.context, {
+        currentAudio: audio,
+        soundObj: status,
+        isPlaying: true,
+        currentAudioIndex: nextAudioIndex,
+      });
+      await storeAddioForNextOpening(audio, nextAudioIndex); // store when audio is finish
     }
   };
 
@@ -72,7 +103,8 @@ export class AudioList extends Component {
         isPlaying: true,
         currentAudioIndex: index,
       });
-      return playbackObj.setOnPlaybackStatusUpdate(this.onPlaybackStatusUpdate);
+      playbackObj.setOnPlaybackStatusUpdate(this.onPlaybackStatusUpdate); // update current duration and positions regularly
+      return storeAddioForNextOpening(audio, index); // store current audio and its' index
     }
 
     // pause audio > if playing
@@ -111,20 +143,24 @@ export class AudioList extends Component {
     if (soundObj.isLoaded && currentAudio.id !== audio.id) {
       const status = await playNext(playbackObj, audio.uri);
       // get current audio index
+      console.log(
+        "play another song ------------------------------------------------ "
+      );
+      console.log(audio.id);
       const index = audioFile.indexOf(audio);
-      return updateState(this.context, {
+      updateState(this.context, {
         currentAudio: audio,
         soundObj: status,
         isPlaying: true,
         currentAudioIndex: index,
       });
+      return storeAddioForNextOpening(audio, index); // store current audio and its' index
     }
   };
   // handler --------------------------end-------------------------------------
 
   // render each song item and its' functionalities
   rowRenderer = (type, item, index, extendedState) => {
-    // console.log(extendedState.isPlaying);
     return (
       <AudioListItem
         title={item.filename}
@@ -134,17 +170,22 @@ export class AudioList extends Component {
         onAudioPress={() => this.handleAudioPress(item)}
         onOptionPress={() => {
           this.currentItem = item;
-          console.log(item);
           this.setState({ ...this.state, optionModalVisible: true });
         }}
       />
     );
   };
 
+  // invoked immediately after a component is mounted
+  componentDidMount() {
+    this.context.loadPreviousAudio();
+  }
+
   render() {
     return (
       <AudioContext.Consumer>
         {({ dataProvider, isPlaying }) => {
+          if (!dataProvider._data.length) return null; // if there is no data for data provider
           return (
             <Screen style={{ flex: 1 }}>
               <RecyclerListView

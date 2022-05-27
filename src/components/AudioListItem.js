@@ -73,7 +73,6 @@ const AudioListItem = ({
                 {activeListItem
                   ? renderPlayPauseIcon(isPlaying)
                   : getThumbnailText(title)}
-                {/* {renderPlayPauseIcon(isPlaying)} */}
               </Text>
             </View>
             <View style={styles.titleContainer}>
@@ -82,7 +81,7 @@ const AudioListItem = ({
                 style={[
                   styles.title,
                   {
-                    color: activeListItem ? color.ACTIVE_BG : color.FONT_LIGHT,
+                    color: activeListItem ? color.ACTIVE_BG : color.FONT_MEDIUM,
                   },
                 ]}
               >

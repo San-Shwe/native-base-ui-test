@@ -16,60 +16,21 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import Slider from "@react-native-community/slider";
 import { songs } from "../model/data"; // {songs}, songs
 import { AudioContext } from "./AudioProvider";
-
-// import TrackPlayer, {
-//   Capability,
-//   Event,
-//   RepeatMode,
-//   State,
-//   usePlaybackState,
-//   useProgress,
-//   useTrackPlayerEvents,
-// } from "react-native-track-player";
+import { play, pause, resume } from "./AudioController";
 
 const { width, height } = Dimensions.get("window");
-
-// setup songs and track player on load
-// const setupPlayer = async () => {
-//   try {
-//     await TrackPlayer.setupPlayer();
-
-//     await TrackPlayer.add(songs);
-
-//     // Start playing it
-//     await TrackPlayer.play();
-//   } catch (e) {
-//     console.log(e);
-//   }
-// };
-
-// toggle paly and puase function for songs
-// const togglePlayback = async (playbackState) => {
-//   const currentTrack = await TrackPlayer.getCurrentTrack();
-//   if (currentTrack != null) {
-//     if (playbackState == State.Paused) {
-//       await TrackPlayer.play();
-//     } else {
-//       await TrackPlayer.pause();
-//     }
-//   }
-// };
 
 const MusicPlayer = ({ navigation }) => {
   // context
   const context = useContext(AudioContext);
-  const { playbackPosition, playbackDuration } = context;
-
+  const { playbackPosition, playbackDuration, audioFile, currentAudioIndex } =
+    context;
   const calculateSeebBar = () => {
-    console.log(playbackDuration);
     if (playbackDuration !== null && playbackPosition !== null) {
-      // console.log(playbackPosition / playbackDuration);
       return playbackPosition / playbackDuration;
     }
     return 0;
   };
-
-  // const playbackState = usePlaybackState();
 
   // catch animated values
   const scrollX = useRef(new Animated.Value(0)).current;
@@ -86,19 +47,26 @@ const MusicPlayer = ({ navigation }) => {
       const index = Math.round(value / width);
       setSongIndex(index);
     });
-
     // remove all listener for skip next and skip previous button
     return () => {
       scrollX.removeAllListeners();
     };
   }, []);
 
+  useEffect(() => {
+    context.loadPreviousAudio();
+    console.log("use Effect");
+  }, []);
+
   const skipForward = () => {
+    // console.log(audioFile);
     songSlider.current.scrollToOffset({
       offset: (songIndex + 1) * width,
     });
   };
   const skipBackward = () => {
+    // console.log(audioFile);
+    // console.log(context.audioFile.filename);
     songSlider.current.scrollToOffset({
       offset: (songIndex - 1) * width,
     });
@@ -116,6 +84,42 @@ const MusicPlayer = ({ navigation }) => {
       </Animated.View>
     );
   };
+
+  // toggle paly and puase function for songs ----------------------------------------
+  const handlePlayPause = async () => {
+    // play > playing for the first time
+    if (context.soundObj === null) {
+      const audio = context.currentAudio;
+      const status = await play(context.playbackObj, audio.uri);
+      return context.updateState(context, {
+        currentAudio: audio,
+        soundObj: status,
+        isPlaying: true,
+        currentAudioIndex: context.currentAudioIndex,
+      });
+    }
+
+    // pause
+    if (context.soundObj && context.soundObj.isPlaying) {
+      const status = pause(context.playbackObj);
+      return context.updateState(context, {
+        soundObj: status,
+        isPlaying: false,
+      });
+    }
+
+    // resume
+    if (context.soundObj && !context.soundObj.isPlaying) {
+      const status = resume(context.playbackObj);
+      return context.updateState(context, {
+        soundObj: status,
+        isPlaying: true,
+      });
+    }
+  };
+  // ---------------------------------------------- ----------------------------------------
+
+  if (!context.currentAudio) return null;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -142,9 +146,7 @@ const MusicPlayer = ({ navigation }) => {
         </View>
         {/* Song Title and Artist Name */}
         <View>
-          <Text style={styles.songTitle}>
-            {context.audioFile.filename || "Unknown"}
-          </Text>
+          <Text style={styles.songTitle}>{context.currentAudio.filename}</Text>
           <Text style={styles.artistName}>Unknown</Text>
         </View>
         {/* Slider Bar */}
@@ -175,7 +177,7 @@ const MusicPlayer = ({ navigation }) => {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate("AudioList");
+              handlePlayPause();
             }}
           >
             <Ionicons
@@ -227,108 +229,6 @@ const MusicPlayer = ({ navigation }) => {
             <Ionicons name="ellipsis-horizontal-outline" size={30} />
           </TouchableOpacity>
         </View>
-      </View>
-    </SafeAreaView>
-  );
-};
-
-// image picker screen
-const ImagePickerScreen = () => {
-  const [selectedImage, setSelectedImage] = React.useState([]);
-
-  let openImagePickerAsync = async () => {
-    let permissionResult =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    if (permissionResult.granted === false) {
-      alert("Permission to access camera roll is required!");
-      return;
-    }
-
-    let pickerResult = await ImagePicker.launchImageLibraryAsync();
-    console.log(pickerResult);
-
-    if (pickerResult.cancelled === true) {
-      return;
-    }
-
-    setSelectedImage({ localUri: pickerResult.uri });
-  };
-
-  if (selectedImage !== null) {
-    return (
-      <SafeAreaView
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: "white",
-        }}
-      >
-        <View style={styles.container}>
-          {/* {console.log(selectedImage)} */}
-          <Image
-            source={{ uri: selectedImage.localUri }}
-            style={styles.thumbnail}
-          />
-          <TouchableOpacity
-            style={{
-              backgroundColor: "#006E7F",
-              width: 150,
-              height: 50,
-              padding: 10,
-              borderRadius: 5,
-              textAlign: "center",
-            }}
-            onPress={(e) => setSelectedImage(null)}
-          >
-            <Text
-              style={{
-                fontSize: 20,
-                // fontFamily: "Roboto-Light",
-                fontWeight: "bold",
-                color: "white",
-              }}
-            >
-              CLEAR
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "white",
-      }}
-    >
-      <View style={styles.container}>
-        <TouchableOpacity
-          style={{
-            backgroundColor: "#006E7F",
-            width: 150,
-            height: 50,
-            padding: 10,
-            borderRadius: 5,
-            textAlign: "center",
-          }}
-          // onPress={(e) => setSelectedImage(null)}
-        >
-          <Text
-            style={{
-              fontSize: 20,
-              fontWeight: "bold",
-              color: "white",
-            }}
-          >
-            Pick
-          </Text>
-        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
