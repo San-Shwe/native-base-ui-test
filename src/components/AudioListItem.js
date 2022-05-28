@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import color from "./color";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { useTheme } from "react-native-paper";
 
 // get first letter text
 const getThumbnailText = (filename) => filename[0];
@@ -54,6 +55,8 @@ const AudioListItem = ({
   isPlaying,
   activeListItem,
 }) => {
+  const { colors } = useTheme();
+
   return (
     <>
       <View style={styles.container}>
@@ -81,7 +84,7 @@ const AudioListItem = ({
                 style={[
                   styles.title,
                   {
-                    color: activeListItem ? color.ACTIVE_BG : color.FONT_MEDIUM,
+                    color: activeListItem ? color.ACTIVE_BG : colors.text,
                   },
                 ]}
               >
@@ -98,6 +101,7 @@ const AudioListItem = ({
             onPress={onOptionPress} // work onOptionPress function on parent component
             name="ellipsis-vertical-outline"
             size={25}
+            style={{ color: colors.text }}
           />
         </View>
       </View>

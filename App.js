@@ -42,7 +42,7 @@ const HomeStackScreen = ({ navigation }) => {
       <HomeStack.Screen
         name="AudioList"
         component={AudioList}
-        // options={{ headerShown: false }}
+        options={{ title: "Audio List" }}
       />
     </HomeStack.Navigator>
   );
@@ -135,10 +135,9 @@ const App = () => {
                 <Drawer.Screen name="Support" component={SupportScreen} />
                 <Drawer.Screen
                   name="Playlist"
-                  options={{ headerShown: false }}
+                  options={{ headerShown: false, title: "Play List" }}
                   component={Playlist}
                 />
-                {/* <Drawer.Screen name="AudioList" component={AudioList} /> */}
               </Drawer.Navigator>
             ) : (
               <RootStackScreen />

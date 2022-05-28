@@ -237,7 +237,10 @@ const MusicPlayer = ({ navigation }) => {
         </View>
         {/* Song Title and Artist Name */}
         <View>
-          <Text style={[styles.songTitle, { color: colors.text }]}>
+          <Text
+            numberOfLines={1}
+            style={[styles.songTitle, { color: colors.text }]}
+          >
             {context.currentAudio.filename}
           </Text>
           <Text style={[styles.artistName, { color: colors.subTxt }]}>

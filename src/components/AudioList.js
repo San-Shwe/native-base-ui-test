@@ -143,6 +143,7 @@ export class AudioList extends Component {
   }
 
   render() {
+    const { navigation } = this.props;
     return (
       <AudioContext.Consumer>
         {({ dataProvider, isPlaying }) => {
@@ -167,7 +168,7 @@ export class AudioList extends Component {
                   console.log("paly");
                 }}
                 onPlayListPress={() => {
-                  console.log("playlist add");
+                  navigation.navigate("Playlist");
                 }}
               />
             </Screen>
