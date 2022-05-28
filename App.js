@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
+// import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // IMPORT PACKAGES
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -25,6 +26,7 @@ import RootStackScreen from "./src/components/RootStackScreen";
 import { AuthContext } from "./src/components/context";
 import AudioList from "./src/components/AudioList";
 import { AudioProvider } from "./src/components/AudioProvider";
+import Playlist from "./src/Screen/Playlist";
 
 const HomeStack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -85,6 +87,9 @@ const App = () => {
       ...NavigationDefaultTheme.colors,
       ...PaperDefaultTheme.colors,
       text: "#333333",
+      subTxt: "#413F42",
+      icon: "#9B0000",
+      opacity: "#7F8487",
     },
   };
 
@@ -95,6 +100,9 @@ const App = () => {
       ...NavigationDarkTheme.colors,
       ...PaperDarkTheme.colors,
       text: "#fff",
+      subTxt: "#F1EEE9",
+      icon: "#97BFB4",
+      opacity: "#99A799",
     },
   };
 
@@ -125,6 +133,11 @@ const App = () => {
                 />
                 <Drawer.Screen name="Profile" component={ProfileScreen} />
                 <Drawer.Screen name="Support" component={SupportScreen} />
+                <Drawer.Screen
+                  name="Playlist"
+                  options={{ headerShown: false }}
+                  component={Playlist}
+                />
                 {/* <Drawer.Screen name="AudioList" component={AudioList} /> */}
               </Drawer.Navigator>
             ) : (
@@ -140,7 +153,7 @@ const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    // backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
   },

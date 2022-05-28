@@ -10,14 +10,14 @@ import {
   Animated,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
+import { useTheme } from "react-native-paper";
 import * as ImagePicker from "expo-image-picker";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Slider from "@react-native-community/slider";
 import { songs } from "../model/data"; // {songs}, songs
 import { AudioContext } from "./AudioProvider";
 import { play, pause, resume, playNext } from "./AudioController";
-import { storeAddioForNextOpening } from "./storeHelper";
+import { storeAudioForNextOpening } from "./storeHelper";
 
 const { width, height } = Dimensions.get("window");
 
@@ -25,11 +25,7 @@ const MusicPlayer = ({ navigation }) => {
   // context
   const context = useContext(AudioContext);
   const { playbackPosition, playbackDuration } = context;
-
-  useEffect(() => {
-    context.loadPreviousAudio();
-    console.log("use Effect");
-  }, []);
+  const { colors } = useTheme();
 
   const calculateSeebBar = () => {
     if (playbackDuration !== null && playbackPosition !== null) {
@@ -59,16 +55,24 @@ const MusicPlayer = ({ navigation }) => {
   //   };
   // }, []);
 
+  useEffect(() => {
+    context.loadPreviousAudio();
+    console.log("use Effect");
+    console.log(context.playbackObj);
+  }, []);
+
   // skip to next audio ---------------------------------------------------------
   const skipForward = async () => {
+    console.log("next --------------->", context.playbackObj.getStatusAsync());
     const { isLoaded } = await context.playbackObj.getStatusAsync();
+    console.log("isloaded =====> ", isLoaded);
     const isLastAudio =
       context.currentAudioIndex + 1 === context.totalAudioCount;
     let audio = context.audioFile[context.currentAudioIndex + 1];
     let index;
     let status;
     if (!isLoaded && !isLastAudio) {
-      // if audio is new
+      // if audio is new play the first time
       index = context.currentAudioIndex + 1;
       status = await play(context.playbackObj, audio.uri);
     }
@@ -80,7 +84,6 @@ const MusicPlayer = ({ navigation }) => {
     }
 
     if (isLastAudio) {
-      //
       index = 0;
       audio = context.audio;
       if (isLoaded) {
@@ -93,10 +96,13 @@ const MusicPlayer = ({ navigation }) => {
     context.updateState(context, {
       currentAudio: audio,
       soundObj: status,
+      playbackObj: context.playbackObj,
       isPlaying: true,
       currentAudioIndex: index,
+      playbackPosition: null,
+      playbackDuration: null,
     });
-    storeAddioForNextOpening(audio, index);
+    storeAudioForNextOpening(audio, index);
 
     // move next slider
     songSlider.current.scrollToOffset({
@@ -136,10 +142,13 @@ const MusicPlayer = ({ navigation }) => {
     context.updateState(context, {
       currentAudio: audio,
       soundObj: status,
+      playbackObj: context.playbackObj,
       isPlaying: true,
       currentAudioIndex: index,
+      playbackPosition: null,
+      playbackDuration: null,
     });
-    storeAddioForNextOpening(audio, index);
+    storeAudioForNextOpening(audio, index);
 
     // move previous slider
     songSlider.current.scrollToOffset({
@@ -163,10 +172,16 @@ const MusicPlayer = ({ navigation }) => {
 
   // toggle paly and puase function for songs ----------------------------------------
   const handlePlayPause = async () => {
+    console.log(context.soundObj);
+    console.log(context.isPlaying);
+
     // play > playing for the first time
     if (context.soundObj === null) {
       const audio = context.currentAudio;
       const status = await play(context.playbackObj, audio.uri);
+      context.playbackObj.setOnPlaybackStatusUpdate(
+        context.onPlaybackStatusUpdate
+      );
       return context.updateState(context, {
         currentAudio: audio,
         soundObj: status,
@@ -177,7 +192,7 @@ const MusicPlayer = ({ navigation }) => {
 
     // pause
     if (context.soundObj && context.soundObj.isPlaying) {
-      const status = pause(context.playbackObj);
+      const status = await pause(context.playbackObj);
       return context.updateState(context, {
         soundObj: status,
         isPlaying: false,
@@ -186,7 +201,7 @@ const MusicPlayer = ({ navigation }) => {
 
     // resume
     if (context.soundObj && !context.soundObj.isPlaying) {
-      const status = resume(context.playbackObj);
+      const status = await resume(context.playbackObj);
       return context.updateState(context, {
         soundObj: status,
         isPlaying: true,
@@ -222,8 +237,12 @@ const MusicPlayer = ({ navigation }) => {
         </View>
         {/* Song Title and Artist Name */}
         <View>
-          <Text style={styles.songTitle}>{context.currentAudio.filename}</Text>
-          <Text style={styles.artistName}>Unknown</Text>
+          <Text style={[styles.songTitle, { color: colors.text }]}>
+            {context.currentAudio.filename}
+          </Text>
+          <Text style={[styles.artistName, { color: colors.subTxt }]}>
+            Unknown
+          </Text>
         </View>
         {/* Slider Bar */}
         <View>
@@ -232,13 +251,17 @@ const MusicPlayer = ({ navigation }) => {
             minimumValue={0}
             maximumValue={1}
             value={calculateSeebBar()}
-            minimumTrackTintColor="#000000"
-            maximumTrackTintColor="#FFFFFF"
+            minimumTrackTintColor={colors.icon}
+            maximumTrackTintColor={colors.icon}
             onSlidingComplete={() => {}}
           />
           <View style={styles.progressLableContainer}>
-            <Text style={styles.progressLableTxt}>0:20</Text>
-            <Text style={styles.progressLableTxt}>3:50</Text>
+            <Text style={[styles.progressLableTxt, { color: colors.subTxt }]}>
+              0:20
+            </Text>
+            <Text style={[styles.progressLableTxt, { color: colors.subTxt }]}>
+              3:50
+            </Text>
           </View>
         </View>
 
@@ -248,7 +271,7 @@ const MusicPlayer = ({ navigation }) => {
             <Ionicons
               name="play-skip-back-outline"
               size={35}
-              style={{ marginTop: 20 }}
+              style={{ marginTop: 20, color: colors.icon }}
             />
           </TouchableOpacity>
           <TouchableOpacity
@@ -257,6 +280,7 @@ const MusicPlayer = ({ navigation }) => {
             }}
           >
             <Ionicons
+              style={{ color: colors.icon }}
               name={
                 context.isPlaying
                   ? "pause-circle-outline"
@@ -269,7 +293,7 @@ const MusicPlayer = ({ navigation }) => {
             <Ionicons
               name="play-skip-forward-outline"
               size={35}
-              style={{ marginTop: 20 }}
+              style={{ marginTop: 20, color: colors.icon }}
             />
           </TouchableOpacity>
         </View>
@@ -277,18 +301,32 @@ const MusicPlayer = ({ navigation }) => {
 
       {/* -------------------- */}
       {/* Bottom Control Group */}
-      <View style={styles.bottomContainer}>
+      <View
+        style={[styles.bottomContainer, { borderTopColor: colors.opacity }]}
+      >
         <View style={styles.bottomControl}>
           <TouchableOpacity onPress={() => {}}>
-            <Ionicons name="heart-outline" size={30} />
+            <Ionicons
+              name="heart-outline"
+              size={30}
+              style={{ color: colors.icon }}
+            />
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => {}}>
-            <Ionicons name="repeat-outline" size={30} />
+            <Ionicons
+              name="repeat-outline"
+              size={30}
+              style={{ color: colors.icon }}
+            />
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => {}}>
-            <Ionicons name="share-social-outline" size={30} />
+            <Ionicons
+              name="share-social-outline"
+              size={30}
+              style={{ color: colors.icon }}
+            />
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => {}}>
@@ -297,12 +335,17 @@ const MusicPlayer = ({ navigation }) => {
               onPress={() => {
                 navigation.navigate("AudioList");
               }}
+              style={{ color: colors.icon }}
               size={30}
             />
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => navigation.openDrawer()}>
-            <Ionicons name="ellipsis-horizontal-outline" size={30} />
+            <Ionicons
+              name="ellipsis-horizontal-outline"
+              size={30}
+              style={{ color: colors.icon }}
+            />
           </TouchableOpacity>
         </View>
       </View>
@@ -342,7 +385,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
     textAlign: "center",
-    color: "#1A3C40",
   },
   artistName: {
     fontSize: 16,
@@ -367,11 +409,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   progressLableTxt: {
-    color: "#1A3C40",
+    // color: "#1A3C40",
     fontSize: 16,
   },
   bottomContainer: {
-    borderTopColor: "#fff",
     borderTopWidth: 1,
     width: width,
     alignItems: "center",
