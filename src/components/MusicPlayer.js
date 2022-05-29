@@ -326,9 +326,12 @@ const MusicPlayer = ({ navigation }) => {
 
           <TouchableOpacity onPress={() => {}}>
             <Ionicons
-              name="share-social-outline"
+              name="albums-outline"
               size={30}
               style={{ color: colors.icon }}
+              onPress={() => {
+                navigation.navigate("Playlist");
+              }}
             />
           </TouchableOpacity>
 

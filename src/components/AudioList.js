@@ -150,6 +150,7 @@ export class AudioList extends Component {
           if (!dataProvider._data.length) return null; // if there is no data for data provider
           return (
             <Screen style={{ flex: 1 }}>
+              {/* RecyclerListView for future App's Performance */}
               <RecyclerListView
                 dataProvider={dataProvider}
                 layoutProvider={this.layoutProvider}
