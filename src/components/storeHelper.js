@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export const storeAddioForNextOpening = async (audio, index) => {
+export const storeAudioForNextOpening = async (audio, index) => {
   try {
     await AsyncStorage.setItem(
       "previousAudio",

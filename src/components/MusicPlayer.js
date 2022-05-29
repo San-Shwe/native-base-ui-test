@@ -6,18 +6,15 @@ import {
   Dimensions,
   TouchableOpacity,
   Image,
-  FlatList,
   Animated,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-import * as ImagePicker from "expo-image-picker";
+import { useTheme } from "react-native-paper";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Slider from "@react-native-community/slider";
 import { songs } from "../model/data"; // {songs}, songs
 import { AudioContext } from "./AudioProvider";
-import { play, pause, resume, playNext } from "./AudioController";
-import { storeAddioForNextOpening } from "./storeHelper";
+import { selectAudio, changeAudio } from "./AudioController";
 
 const { width, height } = Dimensions.get("window");
 
@@ -25,11 +22,7 @@ const MusicPlayer = ({ navigation }) => {
   // context
   const context = useContext(AudioContext);
   const { playbackPosition, playbackDuration } = context;
-
-  useEffect(() => {
-    context.loadPreviousAudio();
-    console.log("use Effect");
-  }, []);
+  const { colors } = useTheme();
 
   const calculateSeebBar = () => {
     if (playbackDuration !== null && playbackPosition !== null) {
@@ -59,44 +52,14 @@ const MusicPlayer = ({ navigation }) => {
   //   };
   // }, []);
 
+  useEffect(() => {
+    context.loadPreviousAudio();
+    console.log("use Effect > ", context.playbackObj);
+  }, []);
+
   // skip to next audio ---------------------------------------------------------
   const skipForward = async () => {
-    const { isLoaded } = await context.playbackObj.getStatusAsync();
-    const isLastAudio =
-      context.currentAudioIndex + 1 === context.totalAudioCount;
-    let audio = context.audioFile[context.currentAudioIndex + 1];
-    let index;
-    let status;
-    if (!isLoaded && !isLastAudio) {
-      // if audio is new
-      index = context.currentAudioIndex + 1;
-      status = await play(context.playbackObj, audio.uri);
-    }
-
-    if (isLoaded && !isLastAudio) {
-      // if it is loaded but not last audio
-      index = context.currentAudioIndex + 1;
-      status = await playNext(context.playbackObj, audio.uri);
-    }
-
-    if (isLastAudio) {
-      //
-      index = 0;
-      audio = context.audio;
-      if (isLoaded) {
-        status = await playNext(context.playbackObj, audio.uri);
-      } else {
-        status = await play(context.playbackObj, audio.uri);
-      }
-    }
-
-    context.updateState(context, {
-      currentAudio: audio,
-      soundObj: status,
-      isPlaying: true,
-      currentAudioIndex: index,
-    });
-    storeAddioForNextOpening(audio, index);
+    await changeAudio(context, "next");
 
     // move next slider
     songSlider.current.scrollToOffset({
@@ -106,40 +69,7 @@ const MusicPlayer = ({ navigation }) => {
   // ----------------------------------------------------------------------------
   // skip to previous audio ----------------------start--------------------------------
   const skipBackward = async () => {
-    const { isLoaded } = await context.playbackObj.getStatusAsync();
-    const isFirstAudio = context.currentAudioIndex <= 0;
-    let audio = context.audioFile[context.currentAudioIndex - 1];
-    let index;
-    let status;
-    if (!isLoaded && !isFirstAudio) {
-      // if audio is new
-      index = context.currentAudioIndex - 1;
-      status = await play(context.playbackObj, audio.uri);
-    }
-
-    if (isLoaded && !isFirstAudio) {
-      // if it is loaded but not last audio
-      index = context.currentAudioIndex - 1;
-      status = await playNext(context.playbackObj, audio.uri);
-    }
-
-    if (isFirstAudio) {
-      index = context.totalAudioCount - 1;
-      audio = context.audio;
-      if (isLoaded) {
-        status = await playNext(context.playbackObj, audio.uri);
-      } else {
-        status = await play(context.playbackObj, audio.uri);
-      }
-    }
-
-    context.updateState(context, {
-      currentAudio: audio,
-      soundObj: status,
-      isPlaying: true,
-      currentAudioIndex: index,
-    });
-    storeAddioForNextOpening(audio, index);
+    await changeAudio(context, "previous");
 
     // move previous slider
     songSlider.current.scrollToOffset({
@@ -163,35 +93,7 @@ const MusicPlayer = ({ navigation }) => {
 
   // toggle paly and puase function for songs ----------------------------------------
   const handlePlayPause = async () => {
-    // play > playing for the first time
-    if (context.soundObj === null) {
-      const audio = context.currentAudio;
-      const status = await play(context.playbackObj, audio.uri);
-      return context.updateState(context, {
-        currentAudio: audio,
-        soundObj: status,
-        isPlaying: true,
-        currentAudioIndex: context.currentAudioIndex,
-      });
-    }
-
-    // pause
-    if (context.soundObj && context.soundObj.isPlaying) {
-      const status = pause(context.playbackObj);
-      return context.updateState(context, {
-        soundObj: status,
-        isPlaying: false,
-      });
-    }
-
-    // resume
-    if (context.soundObj && !context.soundObj.isPlaying) {
-      const status = resume(context.playbackObj);
-      return context.updateState(context, {
-        soundObj: status,
-        isPlaying: true,
-      });
-    }
+    await selectAudio(context.currentAudio, context);
   };
   // ---------------------------------------------- ----------------------------------------
 
@@ -200,9 +102,9 @@ const MusicPlayer = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.mainContainer}>
-        <Text>{`${context.currentAudioIndex + 1} / ${
-          context.totalAudioCount
-        }`}</Text>
+        <Text style={[styles.audioIndex, { color: colors.text }]}>{`${
+          context.currentAudioIndex + 1
+        } / ${context.totalAudioCount}`}</Text>
         {/* Artwork Image or Carosel Image */}
         <View style={{ width: width }}>
           <Animated.FlatList
@@ -222,8 +124,15 @@ const MusicPlayer = ({ navigation }) => {
         </View>
         {/* Song Title and Artist Name */}
         <View>
-          <Text style={styles.songTitle}>{context.currentAudio.filename}</Text>
-          <Text style={styles.artistName}>Unknown</Text>
+          <Text
+            numberOfLines={1}
+            style={[styles.songTitle, { color: colors.text }]}
+          >
+            {context.currentAudio.filename}
+          </Text>
+          <Text style={[styles.artistName, { color: colors.subTxt }]}>
+            Unknown
+          </Text>
         </View>
         {/* Slider Bar */}
         <View>
@@ -232,13 +141,17 @@ const MusicPlayer = ({ navigation }) => {
             minimumValue={0}
             maximumValue={1}
             value={calculateSeebBar()}
-            minimumTrackTintColor="#000000"
-            maximumTrackTintColor="#FFFFFF"
+            minimumTrackTintColor={colors.icon}
+            maximumTrackTintColor={colors.icon}
             onSlidingComplete={() => {}}
           />
           <View style={styles.progressLableContainer}>
-            <Text style={styles.progressLableTxt}>0:20</Text>
-            <Text style={styles.progressLableTxt}>3:50</Text>
+            <Text style={[styles.progressLableTxt, { color: colors.subTxt }]}>
+              0:20
+            </Text>
+            <Text style={[styles.progressLableTxt, { color: colors.subTxt }]}>
+              3:50
+            </Text>
           </View>
         </View>
 
@@ -248,7 +161,7 @@ const MusicPlayer = ({ navigation }) => {
             <Ionicons
               name="play-skip-back-outline"
               size={35}
-              style={{ marginTop: 20 }}
+              style={{ marginTop: 20, color: colors.icon }}
             />
           </TouchableOpacity>
           <TouchableOpacity
@@ -257,6 +170,7 @@ const MusicPlayer = ({ navigation }) => {
             }}
           >
             <Ionicons
+              style={{ color: colors.icon }}
               name={
                 context.isPlaying
                   ? "pause-circle-outline"
@@ -269,7 +183,7 @@ const MusicPlayer = ({ navigation }) => {
             <Ionicons
               name="play-skip-forward-outline"
               size={35}
-              style={{ marginTop: 20 }}
+              style={{ marginTop: 20, color: colors.icon }}
             />
           </TouchableOpacity>
         </View>
@@ -277,18 +191,35 @@ const MusicPlayer = ({ navigation }) => {
 
       {/* -------------------- */}
       {/* Bottom Control Group */}
-      <View style={styles.bottomContainer}>
+      <View
+        style={[styles.bottomContainer, { borderTopColor: colors.opacity }]}
+      >
         <View style={styles.bottomControl}>
           <TouchableOpacity onPress={() => {}}>
-            <Ionicons name="heart-outline" size={30} />
+            <Ionicons
+              name="heart-outline"
+              size={30}
+              style={{ color: colors.icon }}
+            />
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => {}}>
-            <Ionicons name="repeat-outline" size={30} />
+            <Ionicons
+              name="repeat-outline"
+              size={30}
+              style={{ color: colors.icon }}
+            />
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => {}}>
-            <Ionicons name="share-social-outline" size={30} />
+            <Ionicons
+              name="albums-outline"
+              size={30}
+              style={{ color: colors.icon }}
+              onPress={() => {
+                navigation.navigate("Playlist");
+              }}
+            />
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => {}}>
@@ -297,12 +228,17 @@ const MusicPlayer = ({ navigation }) => {
               onPress={() => {
                 navigation.navigate("AudioList");
               }}
+              style={{ color: colors.icon }}
               size={30}
             />
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => navigation.openDrawer()}>
-            <Ionicons name="ellipsis-horizontal-outline" size={30} />
+            <Ionicons
+              name="ellipsis-horizontal-outline"
+              size={30}
+              style={{ color: colors.icon }}
+            />
           </TouchableOpacity>
         </View>
       </View>
@@ -323,6 +259,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  audioIndex: {
+    paddingBottom: 20,
+  },
   thumbnail: {
     width: 300,
     height: 300,
@@ -342,7 +281,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
     textAlign: "center",
-    color: "#1A3C40",
   },
   artistName: {
     fontSize: 16,
@@ -367,11 +305,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   progressLableTxt: {
-    color: "#1A3C40",
+    // color: "#1A3C40",
     fontSize: 16,
   },
   bottomContainer: {
-    borderTopColor: "#fff",
     borderTopWidth: 1,
     width: width,
     alignItems: "center",

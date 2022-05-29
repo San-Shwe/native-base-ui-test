@@ -17,6 +17,7 @@ const RootStackScreen = ({ navigation }) => {
   // clear data if error occur developer
   const removeData = async () => {
     await AsyncStorage.removeItem("previousAudio");
+    await AsyncStorage.removeItem("playlist");
   };
 
   return (

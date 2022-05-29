@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, StatusBar } from "react-native";
 
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
+// import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import {
   useTheme,
@@ -149,7 +150,6 @@ const styles = StyleSheet.create({
   title: { fontSize: 16, marginTop: 3, fontWeight: "bold" },
   bottomDrawerSection: {
     marginBottom: 15,
-    // borderTopColor: "green",
     borderTopWidth: 1,
   },
   userInfoSection: { paddingLeft: 20 },

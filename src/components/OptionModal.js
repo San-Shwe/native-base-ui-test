@@ -33,8 +33,9 @@ const OptionModal = ({
             </TouchableWithoutFeedback>
           </View>
         </View>
+
+        {/* Background for Modal */}
         <TouchableWithoutFeedback onPress={onClose}>
-          {/* Background for Modal */}
           <View style={styles.modalBg} />
         </TouchableWithoutFeedback>
       </Modal>
