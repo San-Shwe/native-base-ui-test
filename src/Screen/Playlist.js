@@ -6,7 +6,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  FlatList,
+  Alert,
 } from "react-native";
 import { useTheme } from "react-native-paper";
 import PlayListInputModal from "./PlayListInputModal";
@@ -72,6 +72,53 @@ export const Playlist = () => {
     }
   }, []);
 
+  const handleBannerPress = async (item) => {
+    // update our playlist if there is any selected audio
+    if (addToPlayList) {
+      const result = await AsyncStorage.getItem("playlist");
+      let oldList = [];
+      let updatedList = [];
+      let isSameAudio = false;
+
+      if (result !== null) {
+        oldList = JSON.parse(result);
+        updatedList = oldList.filter((list) => {
+          // filter playlist which user clicked
+          if (list.id === item.id) {
+            // we want to check that selected audio is alredy inside list or not
+            for (let audio of list.audios) {
+              // if the selected audio is already on the list
+              if (audio.id === addToPlayList.id) {
+                // alert with some message
+                isSameAudio = true;
+                return;
+              }
+            }
+
+            // otherwise | user selected audio is not in playlist | update the playlist
+            list.audios = [...list.audios, addToPlayList];
+          }
+          return list;
+        });
+      }
+
+      // Alert to user if user added audio which is already listed in playlist
+      if (isSameAudio) {
+        Alert.alert(
+          "Found the same audio",
+          `${addToPlayList.filename} is already inside the list.`
+        );
+        isSameAudio = false;
+        return updateState(context, { addToPlayList: null });
+      }
+
+      updateState(context, { addToPlayList: null, playList: [...updatedList] });
+      return AsyncStorage.setItem("playlist", JSON.stringify([...updatedList]));
+    }
+
+    // if there is no audio selected item we wanat to open the list.
+    console.log("opening list");
+  };
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {playList.length
@@ -79,6 +126,7 @@ export const Playlist = () => {
             <TouchableOpacity
               key={item.id.toString()}
               style={styles.playListBanner}
+              onPress={() => handleBannerPress(item)}
             >
               <Text style={[styles.audioCount, { color: colors.text }]}>
                 {item.title}
@@ -91,14 +139,6 @@ export const Playlist = () => {
             </TouchableOpacity>
           ))
         : null}
-      {/* 
-      <FlatList
-        data={playList}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => {
-          <Text>{item.title}</Text>;
-        }}
-      /> */}
 
       <TouchableOpacity
         style={{ marginTop: 20 }}
