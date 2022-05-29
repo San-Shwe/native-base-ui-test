@@ -4,7 +4,8 @@ import * as MediaLibrary from "expo-media-library";
 import { DataProvider } from "recyclerlistview";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Audio } from "expo-av";
-export { storeAudioForNextOpening } from "./storeHelper";
+import { storeAudioForNextOpening } from "./storeHelper";
+import { play, pause, resume, playNext } from "./AudioController";
 
 export const AudioContext = createContext();
 
@@ -13,6 +14,8 @@ export class AudioProvider extends Component {
     super(props);
     this.state = {
       audioFile: [],
+      playList: [], // already having playlist
+      addToPlayList: null, // a new playlist to add
       permissionError: false,
       dataProvider: new DataProvider((r1, r2) => r1 !== r2),
       soundObj: null, // current songs status eg. playing or pause or loading
@@ -127,6 +130,7 @@ export class AudioProvider extends Component {
 
       // if there is no audio to play
       if (nextAudioIndex >= this.totalAudioCount) {
+        console.log("there is no audio to play -----------------");
         this.state.playbackObj.unloadAsync();
         this.updateState(this, {
           currentAudio: this.state.audioFile[0],
@@ -148,6 +152,9 @@ export class AudioProvider extends Component {
         isPlaying: true,
         currentAudioIndex: nextAudioIndex,
       });
+      console.log("toal song > ", this.totalAudioCount);
+      console.log("nextAduio index > ", nextAudioIndex);
+      console.log("audio > ", audio);
       await storeAudioForNextOpening(audio, nextAudioIndex); // store when audio is finish
     }
   };
@@ -175,6 +182,8 @@ export class AudioProvider extends Component {
       currentAudioIndex,
       playbackPosition, // to calculate current position
       playbackDuration,
+      playList,
+      addToPlayList,
     } = this.state;
     // show this screen if user denined audio permission
     if (permissionError) {
@@ -202,6 +211,8 @@ export class AudioProvider extends Component {
           totalAudioCount: this.totalAudioCount,
           playbackPosition,
           playbackDuration,
+          playList,
+          addToPlayList,
           updateState: this.updateState,
           loadPreviousAudio: this.loadPreviousAudio,
           onPlaybackStatusUpdate: this.onPlaybackStatusUpdate,

@@ -5,5 +5,5 @@ export default {
   FONT_LIGHT: "#B6B8B9",
   MODAL_BG: "rgba(0, 0, 0, 0.2)",
   ACTIVE_BG: "#B22727",
-  ACTIVE_FONT: "#FFF",
+  ACTIVE_FONT: "#ff0000",
 };

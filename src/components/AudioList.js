@@ -168,6 +168,9 @@ export class AudioList extends Component {
                   console.log("paly");
                 }}
                 onPlayListPress={() => {
+                  this.context.updateState(this.context, {
+                    addToPlayList: this.currentItem, // set a new playlist to add for Playlist.js>createPlayList
+                  });
                   navigation.navigate("Playlist");
                 }}
               />
