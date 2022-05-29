@@ -5,7 +5,7 @@ import { DataProvider } from "recyclerlistview";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Audio } from "expo-av";
 import { storeAudioForNextOpening } from "./storeHelper";
-import { play, pause, resume, playNext } from "./AudioController";
+import { playNext } from "./AudioController";
 
 export const AudioContext = createContext();
 
@@ -15,7 +15,7 @@ export class AudioProvider extends Component {
     this.state = {
       audioFile: [],
       playList: [], // already having playlist
-      addToPlayList: null, // a new playlist to add
+      addToPlayList: null, // a new playlist to addx`
       permissionError: false,
       dataProvider: new DataProvider((r1, r2) => r1 !== r2),
       soundObj: null, // current songs status eg. playing or pause or loading

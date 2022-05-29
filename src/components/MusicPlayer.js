@@ -6,18 +6,15 @@ import {
   Dimensions,
   TouchableOpacity,
   Image,
-  FlatList,
   Animated,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "react-native-paper";
-import * as ImagePicker from "expo-image-picker";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Slider from "@react-native-community/slider";
 import { songs } from "../model/data"; // {songs}, songs
 import { AudioContext } from "./AudioProvider";
-import { play, pause, resume, playNext } from "./AudioController";
-import { storeAudioForNextOpening } from "./storeHelper";
+import { selectAudio, changeAudio } from "./AudioController";
 
 const { width, height } = Dimensions.get("window");
 
@@ -57,52 +54,12 @@ const MusicPlayer = ({ navigation }) => {
 
   useEffect(() => {
     context.loadPreviousAudio();
-    console.log("use Effect");
-    console.log(context.playbackObj);
+    console.log("use Effect > ", context.playbackObj);
   }, []);
 
   // skip to next audio ---------------------------------------------------------
   const skipForward = async () => {
-    console.log("next --------------->", context.playbackObj.getStatusAsync());
-    const { isLoaded } = await context.playbackObj.getStatusAsync();
-    console.log("isloaded =====> ", isLoaded);
-    const isLastAudio =
-      context.currentAudioIndex + 1 === context.totalAudioCount;
-    let audio = context.audioFile[context.currentAudioIndex + 1];
-    let index;
-    let status;
-    if (!isLoaded && !isLastAudio) {
-      // if audio is new play the first time
-      index = context.currentAudioIndex + 1;
-      status = await play(context.playbackObj, audio.uri);
-    }
-
-    if (isLoaded && !isLastAudio) {
-      // if it is loaded but not last audio
-      index = context.currentAudioIndex + 1;
-      status = await playNext(context.playbackObj, audio.uri);
-    }
-
-    if (isLastAudio) {
-      index = 0;
-      audio = context.audio;
-      if (isLoaded) {
-        status = await playNext(context.playbackObj, audio.uri);
-      } else {
-        status = await play(context.playbackObj, audio.uri);
-      }
-    }
-
-    context.updateState(context, {
-      currentAudio: audio,
-      soundObj: status,
-      playbackObj: context.playbackObj,
-      isPlaying: true,
-      currentAudioIndex: index,
-      playbackPosition: null,
-      playbackDuration: null,
-    });
-    storeAudioForNextOpening(audio, index);
+    await changeAudio(context, "next");
 
     // move next slider
     songSlider.current.scrollToOffset({
@@ -112,43 +69,7 @@ const MusicPlayer = ({ navigation }) => {
   // ----------------------------------------------------------------------------
   // skip to previous audio ----------------------start--------------------------------
   const skipBackward = async () => {
-    const { isLoaded } = await context.playbackObj.getStatusAsync();
-    const isFirstAudio = context.currentAudioIndex <= 0;
-    let audio = context.audioFile[context.currentAudioIndex - 1];
-    let index;
-    let status;
-    if (!isLoaded && !isFirstAudio) {
-      // if audio is new
-      index = context.currentAudioIndex - 1;
-      status = await play(context.playbackObj, audio.uri);
-    }
-
-    if (isLoaded && !isFirstAudio) {
-      // if it is loaded but not last audio
-      index = context.currentAudioIndex - 1;
-      status = await playNext(context.playbackObj, audio.uri);
-    }
-
-    if (isFirstAudio) {
-      index = context.totalAudioCount - 1;
-      audio = context.audio;
-      if (isLoaded) {
-        status = await playNext(context.playbackObj, audio.uri);
-      } else {
-        status = await play(context.playbackObj, audio.uri);
-      }
-    }
-
-    context.updateState(context, {
-      currentAudio: audio,
-      soundObj: status,
-      playbackObj: context.playbackObj,
-      isPlaying: true,
-      currentAudioIndex: index,
-      playbackPosition: null,
-      playbackDuration: null,
-    });
-    storeAudioForNextOpening(audio, index);
+    await changeAudio(context, "previous");
 
     // move previous slider
     songSlider.current.scrollToOffset({
@@ -172,41 +93,7 @@ const MusicPlayer = ({ navigation }) => {
 
   // toggle paly and puase function for songs ----------------------------------------
   const handlePlayPause = async () => {
-    console.log(context.soundObj);
-    console.log(context.isPlaying);
-
-    // play > playing for the first time
-    if (context.soundObj === null) {
-      const audio = context.currentAudio;
-      const status = await play(context.playbackObj, audio.uri);
-      context.playbackObj.setOnPlaybackStatusUpdate(
-        context.onPlaybackStatusUpdate
-      );
-      return context.updateState(context, {
-        currentAudio: audio,
-        soundObj: status,
-        isPlaying: true,
-        currentAudioIndex: context.currentAudioIndex,
-      });
-    }
-
-    // pause
-    if (context.soundObj && context.soundObj.isPlaying) {
-      const status = await pause(context.playbackObj);
-      return context.updateState(context, {
-        soundObj: status,
-        isPlaying: false,
-      });
-    }
-
-    // resume
-    if (context.soundObj && !context.soundObj.isPlaying) {
-      const status = await resume(context.playbackObj);
-      return context.updateState(context, {
-        soundObj: status,
-        isPlaying: true,
-      });
-    }
+    await selectAudio(context.currentAudio, context);
   };
   // ---------------------------------------------- ----------------------------------------
 
@@ -215,9 +102,9 @@ const MusicPlayer = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.mainContainer}>
-        <Text>{`${context.currentAudioIndex + 1} / ${
-          context.totalAudioCount
-        }`}</Text>
+        <Text style={[styles.audioIndex, { color: colors.text }]}>{`${
+          context.currentAudioIndex + 1
+        } / ${context.totalAudioCount}`}</Text>
         {/* Artwork Image or Carosel Image */}
         <View style={{ width: width }}>
           <Animated.FlatList
@@ -371,6 +258,9 @@ const styles = StyleSheet.create({
     // backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
+  },
+  audioIndex: {
+    paddingBottom: 20,
   },
   thumbnail: {
     width: 300,

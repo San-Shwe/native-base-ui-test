@@ -6,7 +6,7 @@ import AudioListItem from "./AudioListItem";
 import Screen from "./Screen";
 import OptionModal from "./OptionModal";
 import { Audio } from "expo-av";
-import { play, pause, resume, playNext } from "./AudioController";
+import { play, pause, resume, playNext, selectAudio } from "./AudioController";
 import { storeAudioForNextOpening } from "./storeHelper";
 
 export class AudioList extends Component {
@@ -39,84 +39,85 @@ export class AudioList extends Component {
 
   // play music when click --------------------------start-------------------------------------
   handleAudioPress = async (audio) => {
-    const {
-      playbackObj,
-      soundObj,
-      currentAudio,
-      updateState,
-      isPlaying,
-      audioFile,
-    } = this.context; // states from AudioProvider
+    await selectAudio(audio, this.context);
+    // const {
+    //   playbackObj,
+    //   soundObj,
+    //   currentAudio,
+    //   updateState,
+    //   isPlaying,
+    //   audioFile,
+    // } = this.context; // states from AudioProvider
 
-    // playing audio for the first time > just once
-    if (soundObj === null) {
-      const playbackObj = new Audio.Sound(); // initial audio object
-      const status = await play(playbackObj, audio.uri);
-      // get current audio index
-      const index = audioFile.indexOf(audio);
-      // set current music status to state and Exit function
-      updateState(this.context, {
-        currentAudio: audio,
-        playbackObj: playbackObj,
-        soundObj: status,
-        isPlaying: true,
-        currentAudioIndex: index,
-      });
-      playbackObj.setOnPlaybackStatusUpdate(
-        this.context.onPlaybackStatusUpdate
-      ); // update current duration and positions regularly
-      return storeAudioForNextOpening(audio, index); // store current audio and its' index
-    }
+    // // playing audio for the first time > just once
+    // if (soundObj === null) {
+    //   const playbackObj = new Audio.Sound(); // initial audio object
+    //   const status = await play(playbackObj, audio.uri);
+    //   // get current audio index
+    //   const index = audioFile.indexOf(audio);
+    //   // set current music status to state and Exit function
+    //   updateState(this.context, {
+    //     currentAudio: audio,
+    //     playbackObj: playbackObj,
+    //     soundObj: status,
+    //     isPlaying: true,
+    //     currentAudioIndex: index,
+    //   });
+    //   playbackObj.setOnPlaybackStatusUpdate(
+    //     this.context.onPlaybackStatusUpdate
+    //   ); // update current duration and positions regularly
+    //   return storeAudioForNextOpening(audio, index); // store current audio and its' index
+    // }
 
-    // pause audio > if playing
-    if (
-      soundObj.isLoaded &&
-      soundObj.isPlaying &&
-      currentAudio.id == audio.id
-    ) {
-      const status = await pause(playbackObj);
-      // get current audio index
-      const index = audioFile.indexOf(audio);
-      return updateState(this.context, {
-        soundObj: status,
-        isPlaying: false,
-        currentAudioIndex: index,
-      });
-    }
+    // // pause audio > if playing
+    // if (
+    //   soundObj.isLoaded &&
+    //   soundObj.isPlaying &&
+    //   currentAudio.id == audio.id
+    // ) {
+    //   const status = await pause(playbackObj);
+    //   // get current audio index
+    //   const index = audioFile.indexOf(audio);
+    //   return updateState(this.context, {
+    //     soundObj: status,
+    //     isPlaying: false,
+    //     currentAudioIndex: index,
+    //   });
+    // }
 
-    // resume audio > if click recent song
-    if (
-      soundObj.isLoaded &&
-      !soundObj.isPlaying &&
-      currentAudio.id == audio.id
-    ) {
-      const status = await resume(playbackObj);
-      // get current audio index
-      const index = audioFile.indexOf(audio);
-      return updateState(this.context, {
-        soundObj: status,
-        isPlaying: true,
-        currentAudioIndex: index,
-      });
-    }
+    // // resume audio > if click recent song
+    // if (
+    //   soundObj.isLoaded &&
+    //   !soundObj.isPlaying &&
+    //   currentAudio.id == audio.id
+    // ) {
+    //   const status = await resume(playbackObj);
+    //   // get current audio index
+    //   const index = audioFile.indexOf(audio);
+    //   return updateState(this.context, {
+    //     soundObj: status,
+    //     isPlaying: true,
+    //     currentAudioIndex: index,
+    //   });
+    // }
 
-    // select another audio
-    if (soundObj.isLoaded && currentAudio.id !== audio.id) {
-      const status = await playNext(playbackObj, audio.uri);
-      // get current audio index
-      console.log(
-        "play another song ------------------------------------------------ "
-      );
-      console.log(audio.id);
-      const index = audioFile.indexOf(audio);
-      updateState(this.context, {
-        currentAudio: audio,
-        soundObj: status,
-        isPlaying: true,
-        currentAudioIndex: index,
-      });
-      return storeAudioForNextOpening(audio, index); // store current audio and its' index
-    }
+    // // select another audio
+    // if (soundObj.isLoaded && currentAudio.id !== audio.id) {
+    //   const status = await playNext(playbackObj, audio.uri);
+    //   // get current audio index
+    //   console.log(
+    //     "play another song ------------------------------------------------ "
+    //   );
+    //   console.log(audio.id);
+    //   const index = audioFile.indexOf(audio);
+    //   updateState(this.context, {
+    //     currentAudio: audio,
+    //     soundObj: status,
+    //     isPlaying: true,
+    //     currentAudioIndex: index,
+    //   });
+    //   return storeAudioForNextOpening(audio, index); // store current audio and its' index
+    // }
   };
   // handler --------------------------end-------------------------------------
 
