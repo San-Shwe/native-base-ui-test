@@ -8,7 +8,7 @@ export const play = async (playbackObj, uri) => {
       {
         uri,
       },
-      { shouldPlay: true }
+      { shouldPlay: true, progressUpdateIntervalMillis: 1000 }
     );
   } catch (error) {
     console.log("error indie paly helper method", error);
@@ -62,9 +62,11 @@ export const selectAudio = async (audio, context) => {
   try {
     // playing audio for the first time > just once
     if (soundObj === null) {
+      console.log("sound object is null");
       const status = await play(playbackObj, audio.uri);
       // get current audio index
       const index = audioFile.indexOf(audio);
+      console.log("Play index >> ", index);
       // set current music status to state and Exit function
       updateState(context, {
         currentAudio: audio,

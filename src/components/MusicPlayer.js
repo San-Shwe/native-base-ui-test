@@ -15,6 +15,7 @@ import Slider from "@react-native-community/slider";
 import { songs } from "../model/data"; // {songs}, songs
 import { AudioContext } from "./AudioProvider";
 import { selectAudio, changeAudio } from "./AudioController";
+import { convertTime } from "./storeHelper";
 
 const { width, height } = Dimensions.get("window");
 
@@ -91,6 +92,10 @@ const MusicPlayer = ({ navigation }) => {
     );
   };
 
+  const renderCurrentTime = () => {
+    return convertTime(playbackPosition / 1000); // divide by 1000 because playbackPosition is in milisecond
+  };
+
   // toggle paly and puase function for songs ----------------------------------------
   const handlePlayPause = async () => {
     await selectAudio(context.currentAudio, context);
@@ -122,7 +127,6 @@ const MusicPlayer = ({ navigation }) => {
             )}
           />
         </View>
-        {/* Song Title and Artist Name */}
         <View>
           <Text
             numberOfLines={1}
@@ -147,10 +151,10 @@ const MusicPlayer = ({ navigation }) => {
           />
           <View style={styles.progressLableContainer}>
             <Text style={[styles.progressLableTxt, { color: colors.subTxt }]}>
-              0:20
+              {renderCurrentTime() || "00:00"}
             </Text>
             <Text style={[styles.progressLableTxt, { color: colors.subTxt }]}>
-              3:50
+              {convertTime(context.currentAudio.duration)}
             </Text>
           </View>
         </View>
@@ -303,6 +307,7 @@ const styles = StyleSheet.create({
   progressLableContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
+    paddingHorizontal: 15,
   },
   progressLableTxt: {
     // color: "#1A3C40",
