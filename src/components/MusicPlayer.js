@@ -14,7 +14,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import Slider from "@react-native-community/slider";
 import { songs } from "../model/data"; // {songs}, songs
 import { AudioContext } from "./AudioProvider";
-import { selectAudio, changeAudio } from "./AudioController";
+import { selectAudio, changeAudio, pause, moveAudio } from "./AudioController";
 import { convertTime } from "./storeHelper";
 
 const { width, height } = Dimensions.get("window");
@@ -37,6 +37,7 @@ const MusicPlayer = ({ navigation }) => {
 
   // song index state for song's title and artist name
   const [songIndex, setSongIndex] = useState(0);
+  const [currentPosition, setCurrentPosition] = useState(0);
 
   // song slider ref to catch current song track
   const songSlider = useRef(0);
@@ -147,11 +148,26 @@ const MusicPlayer = ({ navigation }) => {
             value={calculateSeebBar()}
             minimumTrackTintColor={colors.icon}
             maximumTrackTintColor={colors.icon}
-            onSlidingComplete={() => {}}
+            onValueChange={(value) => {
+              setCurrentPosition(
+                convertTime(value * context.currentAudio.duration)
+              );
+              console.log(value * context.currentAudio.duration);
+            }}
+            onSlidingStart={async () => {
+              // start sliding
+              if (!context.isPlaying) return;
+              try {
+                await pause(context.playbackObj);
+              } catch (error) {
+                console.log("error inside onSlidingStart", error);
+              }
+            }}
+            onSlidingComplete={async (value) => await moveAudio(context, value)}
           />
           <View style={styles.progressLableContainer}>
             <Text style={[styles.progressLableTxt, { color: colors.subTxt }]}>
-              {renderCurrentTime() || "00:00"}
+              {currentPosition ? currentPosition : renderCurrentTime()}
             </Text>
             <Text style={[styles.progressLableTxt, { color: colors.subTxt }]}>
               {convertTime(context.currentAudio.duration)}

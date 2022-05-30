@@ -225,3 +225,35 @@ export const changeAudio = async (context, select) => {
   }
 };
 // --------------------------------end---------------------------------------------
+
+export const moveAudio = async (context, value) => {
+  const { soundObj, isPlaying, playbackObj, updateState, currentAudio } =
+    context;
+  // stop sliding
+  if (soundObj === null || !isPlaying) return;
+  try {
+    console.log("valueis ", typeof value, " === ", value);
+    // console.log(context);
+    console.log("soundObj ", soundObj);
+    console.log(
+      "durationMills * value is ",
+      Math.floor(soundObj.durationMillis * value)
+    );
+    console.log("current posigonMillis is >>> ", context.playbackPosition);
+    const status = await playbackObj.setPositionAsync(
+      Math.floor(soundObj.durationMillis * value)
+    );
+    // soundObj.durationMillis * value
+    // value * currentAudio.duration;
+    // value * context.currentAudio.duration
+    // positionMillisf
+    updateState(context, {
+      soundObj: status,
+      playbackPosition: status.positionMillis,
+    });
+
+    await resume(playbackObj);
+  } catch (error) {
+    console.log("error inside onSlidingComplete", error);
+  }
+};
