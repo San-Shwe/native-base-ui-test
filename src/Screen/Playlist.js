@@ -1,5 +1,4 @@
 import React, { useState, useContext, useEffect } from "react";
-import color from "../components/color";
 import {
   Text,
   View,
@@ -8,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
+import color from "../misc/color";
 import { useTheme } from "react-native-paper";
 import PlayListInputModal from "./PlayListInputModal";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -162,6 +162,7 @@ export const Playlist = () => {
         {/* playlistModal for new playlist */}
         <PlayListInputModal
           visible={modalVisible}
+          context={context}
           onClose={() => {
             setModalVisible(false);
           }}

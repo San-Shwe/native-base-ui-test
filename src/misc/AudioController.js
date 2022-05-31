@@ -60,22 +60,24 @@ export const selectAudio = async (audio, context) => {
   } = context; // states from AudioProvider
 
   try {
+    console.log("soundObj is ", soundObj);
+    console.log(" is current audio id same = ", currentAudio.id == audio.id);
+
     // playing audio for the first time > just once
     if (soundObj === null) {
-      console.log("sound object is null");
+      // console.log("sound object is null");
       const status = await play(playbackObj, audio.uri);
       // get current audio index
-      const index = audioFile.indexOf(audio);
-      console.log("Play index >> ", index);
+      const startIndex = await audioFile.map((a) => a.id).indexOf(audio.id);
       // set current music status to state and Exit function
-      updateState(context, {
+      await updateState(context, {
         currentAudio: audio,
         soundObj: status,
         isPlaying: true,
-        currentAudioIndex: index,
+        currentAudioIndex: startIndex,
       });
-      playbackObj.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate); // update current duration and positions regularly
-      return storeAudioForNextOpening(audio, index); // store current audio and its' index
+      await playbackObj.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate); // update current duration and positions regularly
+      return storeAudioForNextOpening(audio, startIndex); // store current audio and its' index
     }
 
     // pause audio > if playing
@@ -86,12 +88,15 @@ export const selectAudio = async (audio, context) => {
     ) {
       const status = await pause(playbackObj);
       // get current audio index
-      const index = audioFile.indexOf(audio);
-      return updateState(context, {
+      const PauseIndex = await audioFile.map((a) => a.id).indexOf(audio.id);
+      console.log("pause index is ", PauseIndex);
+      await updateState(context, {
+        currentAudio: audio,
         soundObj: status,
         isPlaying: false,
-        currentAudioIndex: index,
+        currentAudioIndex: PauseIndex,
       });
+      return storeAudioForNextOpening(audio, PauseIndex); // store current audio and its' index
     }
 
     // resume audio > if click recent song
@@ -102,22 +107,25 @@ export const selectAudio = async (audio, context) => {
     ) {
       const status = await resume(playbackObj);
       // get current audio index
-      const index = audioFile.indexOf(audio);
-      return updateState(context, {
+      const index = await audioFile.map((a) => a.id).indexOf(audio.id);
+      console.log("resume index >> ", index);
+      await updateState(context, {
+        currentAudio: audio,
         soundObj: status,
         isPlaying: true,
         currentAudioIndex: index,
       });
+      return storeAudioForNextOpening(audio, index); // store current audio and its' index
     }
 
     // select another audio
     if (soundObj.isLoaded && currentAudio.id !== audio.id) {
       const status = await playNext(playbackObj, audio.uri);
       // get current audio index
-      console.log(
-        "play another song ------------------------------------------------ "
-      );
-      console.log(audio.id);
+      // console.log(
+      //   "play another song ------------------------------------------------ "
+      // );
+      // console.log(audio.id);
       const index = audioFile.indexOf(audio);
       updateState(context, {
         currentAudio: audio,
@@ -232,27 +240,26 @@ export const moveAudio = async (context, value) => {
   // stop sliding
   if (soundObj === null || !isPlaying) return;
   try {
-    console.log("valueis ", typeof value, " === ", value);
-    // console.log(context);
-    console.log("soundObj ", soundObj);
-    console.log(
-      "durationMills * value is ",
-      Math.floor(soundObj.durationMillis * value)
-    );
-    console.log("current posigonMillis is >>> ", context.playbackPosition);
+    // console.log("current posigonMillis is >>> ", context.playbackPosition);
     const status = await playbackObj.setPositionAsync(
       Math.floor(soundObj.durationMillis * value)
     );
-    // soundObj.durationMillis * value
-    // value * currentAudio.duration;
-    // value * context.currentAudio.duration
-    // positionMillisf
-    updateState(context, {
+    await updateState(context, {
       soundObj: status,
-      playbackPosition: status.positionMillis,
+      isPlaying: true,
+      // playbackPosition: status.positionMillis,
     });
 
-    await resume(playbackObj);
+    const resumeStatus = await resume(playbackObj);
+    await updateState(context, {
+      soundObj: resumeStatus,
+      isPlaying: true,
+      playbackPosition: resumeStatus.positionMillis,
+    });
+    // currentAudio: audio,
+    //     soundObj: status,
+    //     isPlaying: true,
+    //     currentAudioIndex: index,
   } catch (error) {
     console.log("error inside onSlidingComplete", error);
   }

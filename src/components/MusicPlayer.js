@@ -14,8 +14,13 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import Slider from "@react-native-community/slider";
 import { songs } from "../model/data"; // {songs}, songs
 import { AudioContext } from "./AudioProvider";
-import { selectAudio, changeAudio, pause, moveAudio } from "./AudioController";
-import { convertTime } from "./storeHelper";
+import {
+  selectAudio,
+  changeAudio,
+  pause,
+  moveAudio,
+} from "../misc/AudioController";
+import { convertTime } from "../misc/storeHelper";
 
 const { width, height } = Dimensions.get("window");
 
@@ -100,6 +105,7 @@ const MusicPlayer = ({ navigation }) => {
   // toggle paly and puase function for songs ----------------------------------------
   const handlePlayPause = async () => {
     await selectAudio(context.currentAudio, context);
+    console.log("current audio is (handlePlayPause) >> ", context.currentAudio);
   };
   // ---------------------------------------------- ----------------------------------------
 
@@ -159,15 +165,25 @@ const MusicPlayer = ({ navigation }) => {
               if (!context.isPlaying) return;
               try {
                 await pause(context.playbackObj);
+                // const status =
+                // context.updateState(context, {
+                //   soundObj: status,
+                //   isPlaying: false,
+                //   // playbackPosition: status.positionMillis,
+                // });
               } catch (error) {
                 console.log("error inside onSlidingStart", error);
               }
             }}
-            onSlidingComplete={async (value) => await moveAudio(context, value)}
+            onSlidingComplete={async (value) => {
+              await moveAudio(context, value);
+              setCurrentPosition(0);
+            }}
           />
           <View style={styles.progressLableContainer}>
             <Text style={[styles.progressLableTxt, { color: colors.subTxt }]}>
               {currentPosition ? currentPosition : renderCurrentTime()}
+              {/* await resume(playbackObj); */}
             </Text>
             <Text style={[styles.progressLableTxt, { color: colors.subTxt }]}>
               {convertTime(context.currentAudio.duration)}

@@ -6,7 +6,7 @@ import {
   Dimensions,
   TouchableWithoutFeedback,
 } from "react-native";
-import color from "./color";
+import color from "../misc/color";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useTheme } from "react-native-paper";
 

@@ -1,13 +1,12 @@
-import React, { Component, useEffect, useContext } from "react";
-import { Text, View, StyleSheet, ScrollView, Dimensions } from "react-native";
+import React, { Component } from "react";
+import { StyleSheet, Dimensions } from "react-native";
 import { AudioContext } from "./AudioProvider";
 import { RecyclerListView, LayoutProvider } from "recyclerlistview";
 import AudioListItem from "./AudioListItem";
 import Screen from "./Screen";
 import OptionModal from "./OptionModal";
-import { Audio } from "expo-av";
-import { play, pause, resume, playNext, selectAudio } from "./AudioController";
-import { storeAudioForNextOpening } from "./storeHelper";
+import { selectAudio } from "../misc/AudioController";
+// import { storeAudioForNextOpening } from "../misc/storeHelper";
 
 export class AudioList extends Component {
   static contextType = AudioContext; // class rule - to use audio object

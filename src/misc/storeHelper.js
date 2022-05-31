@@ -12,6 +12,8 @@ export const storeAudioForNextOpening = async (audio, index) => {
   }
 };
 
+// export const storeThemeForNextOpening = () => {}
+
 // convert to readable time
 export const convertTime = (minutes) => {
   if (minutes) {

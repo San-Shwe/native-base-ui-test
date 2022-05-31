@@ -7,7 +7,7 @@ import {
   Modal,
   TouchableWithoutFeedback,
 } from "react-native";
-import color from "./color";
+import color from "../misc/color";
 const OptionModal = ({
   visible,
   onClose,

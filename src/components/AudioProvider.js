@@ -4,8 +4,8 @@ import * as MediaLibrary from "expo-media-library";
 import { DataProvider } from "recyclerlistview";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Audio } from "expo-av";
-import { storeAudioForNextOpening } from "./storeHelper";
-import { playNext } from "./AudioController";
+import { storeAudioForNextOpening } from "../misc/storeHelper";
+import { playNext } from "../misc/AudioController";
 
 export const AudioContext = createContext();
 
@@ -104,9 +104,11 @@ export class AudioProvider extends Component {
     let currentAudio;
     let currentAudioIndex;
     if (previousAudio === null) {
+      console.log("previous audio is null");
       currentAudio = this.state.audioFile[0]; // set first audio if there is no audio in storage
       currentAudioIndex = 0;
     } else {
+      console.log("previous audio have data");
       previousAudio = JSON.parse(previousAudio); // reconvert json format
       currentAudio = previousAudio.audio; // assign to currentAudio
       currentAudioIndex = previousAudio.index; // assign current audio index

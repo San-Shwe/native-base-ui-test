@@ -1,5 +1,5 @@
 import { Text, StyleSheet, View, StatusBar } from "react-native";
-import color from "./color";
+import color from "../misc/color";
 
 const Screen = ({ children }) => {
   return <View style={styles.container}>{children}</View>;

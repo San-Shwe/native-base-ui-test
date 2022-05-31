@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import {
   Text,
   StyleSheet,
@@ -7,10 +7,10 @@ import {
   Modal,
   Dimensions,
 } from "react-native";
-import { selectAudio } from "../misc/AudioController";
-import AudioListItem from "./AudioListItem";
+import { selectAudio } from "../components/AudioController";
+import AudioListItem from "../components/AudioListItem";
 import color from "../misc/color";
-import { AudioContext } from "./AudioProvider";
+import { AudioContext } from "../components/AudioProvider";
 import { useTheme } from "react-native-paper";
 
 export const PlayListDetails = ({ visible, playList, onClose }) => {
@@ -20,6 +20,7 @@ export const PlayListDetails = ({ visible, playList, onClose }) => {
   const playAudio = (item) => {
     selectAudio(item, context);
   };
+
   return (
     <Modal
       animationType="slide"
