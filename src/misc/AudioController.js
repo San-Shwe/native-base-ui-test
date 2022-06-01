@@ -49,7 +49,7 @@ export const playNext = async (playbackObj, uri) => {
   }
 };
 
-export const selectAudio = async (audio, context) => {
+export const selectAudio = async (audio, context, playListInfo = {}) => {
   const {
     playbackObj,
     soundObj,
@@ -60,21 +60,24 @@ export const selectAudio = async (audio, context) => {
   } = context; // states from AudioProvider
 
   try {
-    console.log("soundObj is ", soundObj);
-    console.log(" is current audio id same = ", currentAudio.id == audio.id);
-
     // playing audio for the first time > just once
     if (soundObj === null) {
-      // console.log("sound object is null");
       const status = await play(playbackObj, audio.uri);
       // get current audio index
-      const startIndex = await audioFile.map((a) => a.id).indexOf(audio.id);
+      // const startIndex = await audioFile.map((a) => a.id).indexOf(audio.id);
+      const startIndex = audioFile.findIndex(({ id }) => id === audio.id);
       // set current music status to state and Exit function
+
+      // console.log(startIndex, "from start on first time");
+
       await updateState(context, {
         currentAudio: audio,
         soundObj: status,
         isPlaying: true,
         currentAudioIndex: startIndex,
+        isPlayListRunning: false,
+        activePlayList: [],
+        ...playListInfo,
       });
       await playbackObj.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate); // update current duration and positions regularly
       return storeAudioForNextOpening(audio, startIndex); // store current audio and its' index
@@ -121,17 +124,16 @@ export const selectAudio = async (audio, context) => {
     // select another audio
     if (soundObj.isLoaded && currentAudio.id !== audio.id) {
       const status = await playNext(playbackObj, audio.uri);
-      // get current audio index
-      // console.log(
-      //   "play another song ------------------------------------------------ "
-      // );
-      // console.log(audio.id);
-      const index = audioFile.indexOf(audio);
+      const index = audioFile.findIndex(({ id }) => id === audio.id);
+      console.log(index, "from select another ");
       updateState(context, {
         currentAudio: audio,
         soundObj: status,
         isPlaying: true,
         currentAudioIndex: index,
+        isPlayListRunning: false,
+        activePlayList: [],
+        ...playListInfo,
       });
       return storeAudioForNextOpening(audio, index); // store current audio and its' index
     }
@@ -155,11 +157,11 @@ export const changeAudio = async (context, select) => {
     const isLastAudio = currentAudioIndex + 1 == totalAudioCount;
     const isFirstAudio = currentAudioIndex <= 0;
 
-    console.log(currentAudioIndex + 1, " : ", totalAudioCount);
+    // console.log(currentAudioIndex + 1, " : ", totalAudioCount);
 
-    console.log("isfirstaudio : ", isFirstAudio);
-    console.log("isLastAudio : ", isFirstAudio);
-    console.log("isLoaded : ", isLoaded);
+    // console.log("isfirstaudio : ", isFirstAudio);
+    // console.log("isLastAudio : ", isFirstAudio);
+    // console.log("isLoaded : ", isLoaded);
 
     let audio;
     let index;

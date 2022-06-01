@@ -5,6 +5,8 @@ import { StyleSheet, View } from "react-native";
 // IMPORT PACKAGES
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
+import { createStackNavigator } from "@react-navigation/stack";
+
 import {
   NavigationContainer,
   DefaultTheme as NavigationDefaultTheme,
@@ -27,9 +29,42 @@ import { AuthContext } from "./src/components/context";
 import AudioList from "./src/components/AudioList";
 import { AudioProvider } from "./src/components/AudioProvider";
 import Playlist from "./src/Screen/Playlist";
+import { PlayListDetails } from "./src/Screen/PlayListDetails";
 
 const HomeStack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
+const Stack = createStackNavigator();
+
+// const PlayListScreen = ({ navigation }) => {
+//   return (
+//     <Stack.Navigator
+//       screenOptions={({ route }) => ({
+//         headerStyle: {
+//           backgroundColor: "salmon",
+//         },
+//         headerTintColor: "white",
+//         headerTitleStyle: {
+//           fontWeight: "bold",
+//         },
+//       })}
+//     >
+//       <Stack.Screen
+//         navigation={navigation}
+//         route={route}
+//         name="Playlist"
+//         options={{ headerShown: false, title: "Play List" }}
+//         component={Playlist}
+//       />
+//       <Stack.Screen
+//         navigation={navigation}
+//         route={route}
+//         name="PlayListDetails"
+//         options={{ headerShown: false, title: "Play List Details" }}
+//         component={PlayListDetails}
+//       />
+//     </Stack.Navigator>
+//   );
+// };
 
 const HomeStackScreen = ({ navigation }) => {
   return (
@@ -43,6 +78,16 @@ const HomeStackScreen = ({ navigation }) => {
         name="AudioList"
         component={AudioList}
         options={{ title: "Audio List" }}
+      />
+      <HomeStack.Screen
+        name="PlayListDetails"
+        options={{ headerShown: false, title: "Play List Details" }}
+        component={PlayListDetails}
+      />
+      <HomeStack.Screen
+        name="Playlist"
+        options={{ headerShown: false, title: "Play List" }}
+        component={Playlist}
       />
     </HomeStack.Navigator>
   );
@@ -133,11 +178,16 @@ const App = () => {
                 />
                 <Drawer.Screen name="Profile" component={ProfileScreen} />
                 <Drawer.Screen name="Support" component={SupportScreen} />
-                <Drawer.Screen
-                  name="Playlist"
+                {/* <Drawer.Screen
+                  name="PlayListScreen"
                   options={{ headerShown: false, title: "Play List" }}
-                  component={Playlist}
-                />
+                  component={PlayListScreen}
+                /> */}
+                {/* <Drawer.Screen
+                  name="PlayListDetails"
+                  options={{ headerShown: false, title: "Play List Details" }}
+                  component={PlayListDetails}
+                /> */}
               </Drawer.Navigator>
             ) : (
               <RootStackScreen />

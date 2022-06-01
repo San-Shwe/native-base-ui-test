@@ -143,7 +143,7 @@ export class AudioList extends Component {
   }
 
   render() {
-    const { navigation } = this.props;
+    const { navigation, route } = this.props;
     return (
       <AudioContext.Consumer>
         {({ dataProvider, isPlaying }) => {

@@ -25,6 +25,9 @@ export class AudioProvider extends Component {
       currentAudioIndex: null,
       playbackPosition: null, // to calculate current position
       playbackDuration: null, // to calculate current position
+      selectedPlayList: {}, // to pass data from playlist to playlist details
+      isPlayListRunning: false, // to know it is playing inside Playlist
+      activePlayList: [], // current playing Playlist, not audio list
     };
     this.totalAudioCount = 0;
   }
@@ -104,15 +107,15 @@ export class AudioProvider extends Component {
     let currentAudio;
     let currentAudioIndex;
     if (previousAudio === null) {
-      console.log("previous audio is null");
+      // console.log("previous audio is null");
       currentAudio = this.state.audioFile[0]; // set first audio if there is no audio in storage
       currentAudioIndex = 0;
     } else {
-      console.log("previous audio have data");
+      // console.log("previous audio have data");
       previousAudio = JSON.parse(previousAudio); // reconvert json format
       currentAudio = previousAudio.audio; // assign to currentAudio
       currentAudioIndex = previousAudio.index; // assign current audio index
-      console.log(currentAudioIndex);
+      // console.log(currentAudioIndex);
     }
     return this.setState({ ...this.state, currentAudio, currentAudioIndex }); //
   };
@@ -128,11 +131,36 @@ export class AudioProvider extends Component {
 
     // play next audio if finished current audio
     if (playbackStatus.didJustFinish) {
+      if (this.state.isPlayListRunning) {
+        let audio;
+        // to get current index in PlayList
+        const indexOnPlayList = this.state.activePlayList.audios.findIndex(
+          ({ id }) => id === this.state.currentAudio.id
+        );
+        const nextIndex = indexOnPlayList + 1;
+        audio = this.state.activePlayList.audios[nextIndex];
+        // if next audio is last one, set the audio to first audio
+        if (!audio) audio = this.state.activePlayList.audios[0];
+        // to get current index in audioList
+        const indexOnAllList = this.state.audioFile.findIndex(
+          ({ id }) => id === audio.id
+        );
+
+        const status = await playNext(this.state.playbackObj, audio.uri);
+
+        return this.updateState(this, {
+          currentAudio: audio,
+          soundObj: status,
+          isPlaying: true,
+          currentAudioIndex: indexOnAllList,
+        });
+      }
+
       const nextAudioIndex = this.state.currentAudioIndex + 1;
 
       // if there is no audio to play
       if (nextAudioIndex >= this.totalAudioCount) {
-        console.log("there is no audio to play -----------------");
+        // console.log("there is no audio to play -----------------");
         this.state.playbackObj.unloadAsync();
         this.updateState(this, {
           currentAudio: this.state.audioFile[0],
@@ -148,15 +176,15 @@ export class AudioProvider extends Component {
       // /otherwise play the next song
       const audio = this.state.audioFile[nextAudioIndex];
       const status = await playNext(this.state.playbackObj, audio.uri);
-      this.updateState(this.context, {
+      this.updateState(this.state, {
         currentAudio: audio,
         soundObj: status,
         isPlaying: true,
         currentAudioIndex: nextAudioIndex,
       });
-      console.log("toal song > ", this.totalAudioCount);
-      console.log("nextAduio index > ", nextAudioIndex);
-      console.log("audio > ", audio);
+      // console.log("toal song > ", this.totalAudioCount);
+      // console.log("nextAduio index > ", nextAudioIndex);
+      // console.log("audio > ", audio);
       await storeAudioForNextOpening(audio, nextAudioIndex); // store when audio is finish
     }
   };
@@ -166,9 +194,9 @@ export class AudioProvider extends Component {
     this.getPermission();
     if (this.state.playbackObj === null) {
       this.setState({ ...this.state, playbackObj: new Audio.Sound() });
-      console.log(" NULL ---> ", this.state.playbackObj);
+      // console.log(" NULL ---> ", this.state.playbackObj);
     } else {
-      console.log(" NOT NULL ---> ", this.state.playbackObj.getStatusAsync());
+      // console.log(" NOT NULL ---> ", this.state.playbackObj.getStatusAsync());
     }
   }
 
@@ -186,6 +214,9 @@ export class AudioProvider extends Component {
       playbackDuration,
       playList,
       addToPlayList,
+      selectedPlayList,
+      isPlayListRunning,
+      activePlayList,
     } = this.state;
     // show this screen if user denined audio permission
     if (permissionError) {
@@ -215,6 +246,9 @@ export class AudioProvider extends Component {
           playbackDuration,
           playList,
           addToPlayList,
+          selectedPlayList,
+          isPlayListRunning,
+          activePlayList,
           updateState: this.updateState,
           loadPreviousAudio: this.loadPreviousAudio,
           onPlaybackStatusUpdate: this.onPlaybackStatusUpdate,

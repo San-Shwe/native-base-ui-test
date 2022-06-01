@@ -61,7 +61,7 @@ const MusicPlayer = ({ navigation }) => {
 
   useEffect(() => {
     context.loadPreviousAudio();
-    console.log("use Effect > ", context.playbackObj);
+    // console.log("use Effect > ", context.playbackObj);
   }, []);
 
   // skip to next audio ---------------------------------------------------------
@@ -105,7 +105,7 @@ const MusicPlayer = ({ navigation }) => {
   // toggle paly and puase function for songs ----------------------------------------
   const handlePlayPause = async () => {
     await selectAudio(context.currentAudio, context);
-    console.log("current audio is (handlePlayPause) >> ", context.currentAudio);
+    // console.log("current audio is (handlePlayPause) >> ", context.currentAudio);
   };
   // ---------------------------------------------- ----------------------------------------
 
@@ -114,9 +114,19 @@ const MusicPlayer = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.mainContainer}>
-        <Text style={[styles.audioIndex, { color: colors.text }]}>{`${
-          context.currentAudioIndex + 1
-        } / ${context.totalAudioCount}`}</Text>
+        <View style={styles.audioCountContainer}>
+          <View style={{ flexDirection: "row" }}>
+            {context.isPlayListRunning ? (
+              <>
+                <Text style={{ fontWeight: "bold" }}>From Playlist : </Text>
+                <Text>{context.activePlayList.title}</Text>
+              </>
+            ) : null}
+          </View>
+          <Text style={[styles.audioIndex, { color: colors.text }]}>{`${
+            context.currentAudioIndex + 1
+          } / ${context.totalAudioCount}`}</Text>
+        </View>
         {/* Artwork Image or Carosel Image */}
         <View style={{ width: width }}>
           <Animated.FlatList
@@ -165,12 +175,6 @@ const MusicPlayer = ({ navigation }) => {
               if (!context.isPlaying) return;
               try {
                 await pause(context.playbackObj);
-                // const status =
-                // context.updateState(context, {
-                //   soundObj: status,
-                //   isPlaying: false,
-                //   // playbackPosition: status.positionMillis,
-                // });
               } catch (error) {
                 console.log("error inside onSlidingStart", error);
               }
@@ -182,7 +186,9 @@ const MusicPlayer = ({ navigation }) => {
           />
           <View style={styles.progressLableContainer}>
             <Text style={[styles.progressLableTxt, { color: colors.subTxt }]}>
-              {currentPosition ? currentPosition : renderCurrentTime()}
+              {currentPosition
+                ? currentPosition
+                : renderCurrentTime() || "00:00"}
               {/* await resume(playbackObj); */}
             </Text>
             <Text style={[styles.progressLableTxt, { color: colors.subTxt }]}>
@@ -294,6 +300,12 @@ const styles = StyleSheet.create({
     // backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
+  },
+  audioCountContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    width: 340,
   },
   audioIndex: {
     paddingBottom: 20,

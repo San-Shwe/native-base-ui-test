@@ -12,11 +12,11 @@ import { useTheme } from "react-native-paper";
 import PlayListInputModal from "./PlayListInputModal";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AudioContext } from "../components/AudioProvider";
-import { PlayListDetails } from "../components/PlayListDetails";
+import { PlayListDetails } from "./PlayListDetails";
 
 let selectedPlaylist = {};
 
-export const Playlist = () => {
+export const Playlist = ({ navigation, route }) => {
   const { colors } = useTheme();
   const [modalVisible, setModalVisible] = useState(false);
   const [showPlayListDetails, setShowPlayListDeteils] = useState(false);
@@ -121,11 +121,15 @@ export const Playlist = () => {
     }
 
     // if there is no audio selected item we wanat to open the list.
-    console.log("opening list");
     selectedPlaylist = item;
-    console.log("SELECTED ITEM IS >> -----------> ", item);
-    setShowPlayListDeteils(true);
+    // console.log("SELECTED ITEM IS >> -----------> ", item);
+    // setShowPlayListDeteils(true);
+    // navigation.navigate("PlayListDetails", item);
+
+    await updateState(context, { selectedPlayList: item });
+    navigation.navigate("PlayListDetails");
   };
+
   return (
     <>
       <ScrollView contentContainerStyle={styles.container}>
@@ -171,11 +175,11 @@ export const Playlist = () => {
       </ScrollView>
 
       {/* Playlist Details */}
-      <PlayListDetails
+      {/* <PlayListDetails
         visible={showPlayListDetails}
         playList={selectedPlaylist}
         onClose={() => setShowPlayListDeteils(false)}
-      />
+      /> */}
     </>
   );
 };

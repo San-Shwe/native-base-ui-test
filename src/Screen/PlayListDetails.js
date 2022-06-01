@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import {
   Text,
   StyleSheet,
@@ -7,46 +7,59 @@ import {
   Modal,
   Dimensions,
 } from "react-native";
-import { selectAudio } from "../components/AudioController";
+import { selectAudio } from "../misc/AudioController";
 import AudioListItem from "../components/AudioListItem";
 import color from "../misc/color";
 import { AudioContext } from "../components/AudioProvider";
 import { useTheme } from "react-native-paper";
 
-export const PlayListDetails = ({ visible, playList, onClose }) => {
+export const PlayListDetails = () => {
   const context = useContext(AudioContext);
   const { colors } = useTheme();
 
-  const playAudio = (item) => {
-    selectAudio(item, context);
+  const { selectedPlayList } = context; // states from AudioProvider
+
+  // useEffect(() => {
+  //   console.log(
+  //     "________________________________ selected Playlist is ___________-",
+  //     selectedPlayList
+  //   );
+  // }, []);
+
+  // const { param1, param2 } = route.params;
+
+  const playAudio = async (item) => {
+    await selectAudio(item, context, {
+      isPlayListRunning: true,
+      activePlayList: selectedPlayList,
+    });
+    console.log(
+      "-----------------------------------audio from playlist---------------------------"
+    );
   };
 
   return (
-    <Modal
-      animationType="slide"
-      visible={visible}
-      transparent
-      onRequestClose={onClose}
-    >
-      <View style={styles.container}>
-        <Text style={styles.title}>{playList.title}</Text>
-        <FlatList
-          contentContainerStyle={styles.listContainer}
-          data={playList.audios}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <View style={{ marginBottom: 20 }}>
-              <AudioListItem
-                title={item.filename}
-                duration={item.duration}
-                onAudioPress={playAudio(item)}
-              />
-            </View>
-          )}
-        />
-      </View>
-      <View style={styles.modalBG} />
-    </Modal>
+    <View style={styles.container}>
+      <Text style={styles.title}>{selectedPlayList.title}</Text>
+      <FlatList
+        contentContainerStyle={styles.listContainer}
+        data={selectedPlayList.audios}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <View style={{ marginBottom: 20 }}>
+            <AudioListItem
+              title={item.filename}
+              duration={item.duration}
+              isPlaying={context.isPlaying}
+              activeListItem={item.id === context.currentAudio.id}
+              onAudioPress={() => {
+                playAudio(item);
+              }}
+            />
+          </View>
+        )}
+      />
+    </View>
   );
 };
 
@@ -54,14 +67,7 @@ const { width, height } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
   container: {
-    position: "absolute",
-    bottom: 0,
     alignSelf: "center",
-    height: height - 150,
-    width: width - 15,
-    backgroundColor: "#fff",
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
   },
   modalBG: {
     top: 0,
