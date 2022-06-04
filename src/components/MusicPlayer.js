@@ -21,18 +21,24 @@ import {
   moveAudio,
 } from "../misc/AudioController";
 import { convertTime } from "../misc/storeHelper";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width, height } = Dimensions.get("window");
 
 const MusicPlayer = ({ navigation }) => {
   // context
   const context = useContext(AudioContext);
-  const { playbackPosition, playbackDuration } = context;
+  const { playbackPosition, playbackDuration, currentAudio, isFavourate } =
+    context;
   const { colors } = useTheme();
 
   const calculateSeebBar = () => {
     if (playbackDuration !== null && playbackPosition !== null) {
       return playbackPosition / playbackDuration;
+    }
+
+    if (currentAudio.lastPosition) {
+      return currentAudio.lastPosition / (currentAudio.duration * 1000);
     }
     return 0;
   };
@@ -61,8 +67,34 @@ const MusicPlayer = ({ navigation }) => {
 
   useEffect(() => {
     context.loadPreviousAudio();
-    // console.log("use Effect > ", context.playbackObj);
+    // console.log("use Effect > ", currentAudio);
   }, []);
+
+  // useEffect(() => {
+  //   handleFavourate();
+  // }, [selectAudio, changeAudio]);
+
+  // const handleFavourate = async () => {
+  //   const result = await AsyncStorage.getItem("playlist");
+  //   if (result !== null) {
+  //     const previousAudio = JSON.parse(result);
+
+  //     const favAudios = previousAudio[0].audios;
+  //     favAudios.map((item) => {
+  //       if (item.id === currentAudio.id) {
+  //         console.log(
+  //           "---------------------------current audio is favourate------------------------------"
+  //         );
+  //         setFavourate(true);
+  //         return;
+  //       } else {
+  //         setFavourate(false);
+  //       }
+  //     });
+  //     context.updateState(context, { isFavourate: favourate });
+  //     console.log("IS MY FAVOURATE", previousAudio);
+  //   }
+  // };
 
   // skip to next audio ---------------------------------------------------------
   const skipForward = async () => {
@@ -99,6 +131,10 @@ const MusicPlayer = ({ navigation }) => {
   };
 
   const renderCurrentTime = () => {
+    if (!context.soundObj && currentAudio.lastPosition) {
+      // this condition mean > play audio for the first time just once on load
+      return convertTime(currentAudio.lastPosition / 1000);
+    }
     return convertTime(playbackPosition / 1000); // divide by 1000 because playbackPosition is in milisecond
   };
 
@@ -118,14 +154,24 @@ const MusicPlayer = ({ navigation }) => {
           <View style={{ flexDirection: "row" }}>
             {context.isPlayListRunning ? (
               <>
-                <Text style={{ fontWeight: "bold" }}>From Playlist : </Text>
-                <Text>{context.activePlayList.title}</Text>
+                <Text style={{ fontWeight: "bold", color: colors.text }}>
+                  From Playlist :{" "}
+                </Text>
+                <Text style={{ color: colors.subTxt }}>
+                  {context.activePlayList.title}
+                </Text>
               </>
             ) : null}
           </View>
-          <Text style={[styles.audioIndex, { color: colors.text }]}>{`${
-            context.currentAudioIndex + 1
-          } / ${context.totalAudioCount}`}</Text>
+          {context.isPlayListRunning ? (
+            <Text style={[styles.audioIndex, { color: colors.text }]}>{`${
+              context.currentAudioIndex + 1
+            } / ${context.totalAudioCount}`}</Text>
+          ) : (
+            <Text style={[styles.audioIndex, { color: colors.text }]}>{`${
+              context.currentAudioIndex + 1
+            } / ${context.totalAudioCount}`}</Text>
+          )}
         </View>
         {/* Artwork Image or Carosel Image */}
         <View style={{ width: width }}>
@@ -241,7 +287,7 @@ const MusicPlayer = ({ navigation }) => {
             <Ionicons
               name="heart-outline"
               size={30}
-              style={{ color: colors.icon }}
+              style={{ color: isFavourate ? colors.icon : "#000" }}
             />
           </TouchableOpacity>
 

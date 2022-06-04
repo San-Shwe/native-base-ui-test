@@ -140,13 +140,13 @@ export const Playlist = ({ navigation, route }) => {
                 style={styles.playListBanner}
                 onPress={() => handleBannerPress(item)}
               >
-                <Text style={[styles.audioCount, { color: colors.text }]}>
+                <Text style={[styles.audioCount, { color: colors.icon }]}>
                   {item.title}
                 </Text>
                 <Text style={[styles.audioCount, { color: colors.subTxt }]}>
                   {item.audios.length > 1
-                    ? `${item.audios.length} Songs`
-                    : `${item.audios.length} Song`}
+                    ? `${item.audios.length} audios`
+                    : `${item.audios.length} audio`}
                 </Text>
               </TouchableOpacity>
             ))

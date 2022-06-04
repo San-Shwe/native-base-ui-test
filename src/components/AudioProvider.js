@@ -28,6 +28,7 @@ export class AudioProvider extends Component {
       selectedPlayList: {}, // to pass data from playlist to playlist details
       isPlayListRunning: false, // to know it is playing inside Playlist
       activePlayList: [], // current playing Playlist, not audio list
+      isFavourate: false,
     };
     this.totalAudioCount = 0;
   }
@@ -107,26 +108,36 @@ export class AudioProvider extends Component {
     let currentAudio;
     let currentAudioIndex;
     if (previousAudio === null) {
-      // console.log("previous audio is null");
+      console.log("previous audio is null");
       currentAudio = this.state.audioFile[0]; // set first audio if there is no audio in storage
       currentAudioIndex = 0;
     } else {
-      // console.log("previous audio have data");
+      console.log("previous audio have data");
       previousAudio = JSON.parse(previousAudio); // reconvert json format
       currentAudio = previousAudio.audio; // assign to currentAudio
       currentAudioIndex = previousAudio.index; // assign current audio index
-      // console.log(currentAudioIndex);
+      console.log(previousAudio.audio);
     }
     return this.setState({ ...this.state, currentAudio, currentAudioIndex }); //
   };
 
   // update status regularly
   onPlaybackStatusUpdate = async (playbackStatus) => {
+    // update regularlt current position to [state] if audio is playing
     if (playbackStatus.isLoaded && playbackStatus.isPlaying) {
       this.updateState(this, {
         playbackPosition: playbackStatus.positionMillis, // set current position
         playbackDuration: playbackStatus.durationMillis, // set current audio duration
       });
+    }
+    console.log(playbackStatus.isLoaded, " <> ", playbackStatus.isPlaying);
+    // store audio position for next opening, when the audio is pause,
+    if (playbackStatus.isLoaded && !playbackStatus.isPlaying) {
+      storeAudioForNextOpening(
+        this.state.currentAudio,
+        this.state.currentAudioIndex,
+        playbackStatus.positionMillis
+      );
     }
 
     // play next audio if finished current audio
@@ -160,7 +171,6 @@ export class AudioProvider extends Component {
 
       // if there is no audio to play
       if (nextAudioIndex >= this.totalAudioCount) {
-        // console.log("there is no audio to play -----------------");
         this.state.playbackObj.unloadAsync();
         this.updateState(this, {
           currentAudio: this.state.audioFile[0],
@@ -182,9 +192,6 @@ export class AudioProvider extends Component {
         isPlaying: true,
         currentAudioIndex: nextAudioIndex,
       });
-      // console.log("toal song > ", this.totalAudioCount);
-      // console.log("nextAduio index > ", nextAudioIndex);
-      // console.log("audio > ", audio);
       await storeAudioForNextOpening(audio, nextAudioIndex); // store when audio is finish
     }
   };
@@ -217,6 +224,7 @@ export class AudioProvider extends Component {
       selectedPlayList,
       isPlayListRunning,
       activePlayList,
+      isFavourate,
     } = this.state;
     // show this screen if user denined audio permission
     if (permissionError) {
@@ -249,6 +257,7 @@ export class AudioProvider extends Component {
           selectedPlayList,
           isPlayListRunning,
           activePlayList,
+          isFavourate,
           updateState: this.updateState,
           loadPreviousAudio: this.loadPreviousAudio,
           onPlaybackStatusUpdate: this.onPlaybackStatusUpdate,

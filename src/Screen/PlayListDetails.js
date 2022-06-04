@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Text,
   StyleSheet,
@@ -12,12 +12,16 @@ import AudioListItem from "../components/AudioListItem";
 import color from "../misc/color";
 import { AudioContext } from "../components/AudioProvider";
 import { useTheme } from "react-native-paper";
+import OptionModal from "../components/OptionModal";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const PlayListDetails = () => {
   const context = useContext(AudioContext);
-  const { colors } = useTheme();
-
   const { selectedPlayList } = context; // states from AudioProvider
+  const { colors } = useTheme();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedItem, setSelectedItem] = useState({});
+  const [audios, setAudios] = useState(selectedPlayList.audios);
 
   // useEffect(() => {
   //   console.log(
@@ -38,28 +42,109 @@ export const PlayListDetails = () => {
     );
   };
 
+  const closeModal = () => {
+    setSelectedItem({});
+    setModalVisible(false);
+  };
+
+  // when the user remove audio from playlist, search from storage and set the update playlist to storage
+  const removeAudio = async () => {
+    let isPlaying = context.isPlaying;
+    let isPlayListRunning = context.isPlayListRunning;
+    let soundObj = context.soundObj;
+    let playbackPosition = context.playbackPosition;
+    let activePlayList = context.activePlayList;
+
+    if (
+      context.isPlayListRunning &&
+      context.currentAudio.id === selectedItem.id
+    ) {
+      // stop
+      await context.playbackObj.stopAsync();
+      await context.playbackObj.unloadAsync();
+      isPlaying = false;
+      isPlayListRunning = false;
+      soundObj = null;
+      playbackPosition = 0;
+      activePlayList = [];
+    }
+    // filter audios
+    const newAudios = await audios.filter(
+      (audio) => audio.id !== selectedItem.id
+    );
+
+    const result = await AsyncStorage.getItem("playlist");
+    if (result !== null) {
+      const oldPlaylist = JSON.parse(result);
+      const updatePlaylist = await oldPlaylist.filter((item) => {
+        if (item.id === selectedPlayList.id) {
+          item.audios = newAudios;
+        }
+        return item;
+      });
+
+      AsyncStorage.setItem("playlist", JSON.stringify(updatePlaylist));
+      context.updateState(context, {
+        playList: updatePlaylist,
+        isPlayListRunning,
+        isPlaying,
+        soundObj,
+        playbackPosition,
+        activePlayList,
+      });
+    }
+    setAudios(newAudios);
+    closeModal();
+    console.log("selected item is", selectedItem.id);
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{selectedPlayList.title}</Text>
-      <FlatList
-        contentContainerStyle={styles.listContainer}
-        data={selectedPlayList.audios}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={{ marginBottom: 20 }}>
-            <AudioListItem
-              title={item.filename}
-              duration={item.duration}
-              isPlaying={context.isPlaying}
-              activeListItem={item.id === context.currentAudio.id}
-              onAudioPress={() => {
-                playAudio(item);
-              }}
-            />
-          </View>
+    <>
+      <View style={styles.container}>
+        <Text style={styles.title}>{selectedPlayList.title}</Text>
+        {audios.length ? (
+          <FlatList
+            contentContainerStyle={styles.listContainer}
+            data={audios}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <View style={{ marginBottom: 20 }}>
+                <AudioListItem
+                  title={item.filename}
+                  duration={item.duration}
+                  isPlaying={context.isPlaying}
+                  activeListItem={item.id === context.currentAudio.id}
+                  onAudioPress={() => {
+                    playAudio(item);
+                  }}
+                  onOptionPress={() => {
+                    setSelectedItem(item);
+                    setModalVisible(true);
+                  }}
+                />
+              </View>
+            )}
+          />
+        ) : (
+          <Text
+            style={{
+              fontWeight: "bold",
+              color: colors.subTxt,
+              fontSize: 25,
+              paddingTop: 100,
+            }}
+          >
+            No Audio
+          </Text>
         )}
+      </View>
+      <OptionModal
+        visible={modalVisible}
+        onClose={closeModal}
+        options={[{ title: "Remove From Playlilst", onPress: removeAudio }]}
+        currentItem={selectedItem}
       />
-    </View>
+    </>
   );
 };
 

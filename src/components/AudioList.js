@@ -39,84 +39,6 @@ export class AudioList extends Component {
   // play music when click --------------------------start-------------------------------------
   handleAudioPress = async (audio) => {
     await selectAudio(audio, this.context);
-    // const {
-    //   playbackObj,
-    //   soundObj,
-    //   currentAudio,
-    //   updateState,
-    //   isPlaying,
-    //   audioFile,
-    // } = this.context; // states from AudioProvider
-
-    // // playing audio for the first time > just once
-    // if (soundObj === null) {
-    //   const playbackObj = new Audio.Sound(); // initial audio object
-    //   const status = await play(playbackObj, audio.uri);
-    //   // get current audio index
-    //   const index = audioFile.indexOf(audio);
-    //   // set current music status to state and Exit function
-    //   updateState(this.context, {
-    //     currentAudio: audio,
-    //     playbackObj: playbackObj,
-    //     soundObj: status,
-    //     isPlaying: true,
-    //     currentAudioIndex: index,
-    //   });
-    //   playbackObj.setOnPlaybackStatusUpdate(
-    //     this.context.onPlaybackStatusUpdate
-    //   ); // update current duration and positions regularly
-    //   return storeAudioForNextOpening(audio, index); // store current audio and its' index
-    // }
-
-    // // pause audio > if playing
-    // if (
-    //   soundObj.isLoaded &&
-    //   soundObj.isPlaying &&
-    //   currentAudio.id == audio.id
-    // ) {
-    //   const status = await pause(playbackObj);
-    //   // get current audio index
-    //   const index = audioFile.indexOf(audio);
-    //   return updateState(this.context, {
-    //     soundObj: status,
-    //     isPlaying: false,
-    //     currentAudioIndex: index,
-    //   });
-    // }
-
-    // // resume audio > if click recent song
-    // if (
-    //   soundObj.isLoaded &&
-    //   !soundObj.isPlaying &&
-    //   currentAudio.id == audio.id
-    // ) {
-    //   const status = await resume(playbackObj);
-    //   // get current audio index
-    //   const index = audioFile.indexOf(audio);
-    //   return updateState(this.context, {
-    //     soundObj: status,
-    //     isPlaying: true,
-    //     currentAudioIndex: index,
-    //   });
-    // }
-
-    // // select another audio
-    // if (soundObj.isLoaded && currentAudio.id !== audio.id) {
-    //   const status = await playNext(playbackObj, audio.uri);
-    //   // get current audio index
-    //   console.log(
-    //     "play another song ------------------------------------------------ "
-    //   );
-    //   console.log(audio.id);
-    //   const index = audioFile.indexOf(audio);
-    //   updateState(this.context, {
-    //     currentAudio: audio,
-    //     soundObj: status,
-    //     isPlaying: true,
-    //     currentAudioIndex: index,
-    //   });
-    //   return storeAudioForNextOpening(audio, index); // store current audio and its' index
-    // }
   };
   // handler --------------------------end-------------------------------------
 
@@ -144,6 +66,14 @@ export class AudioList extends Component {
 
   render() {
     const { navigation, route } = this.props;
+
+    const navigateToPlaylist = () => {
+      this.context.updateState(this.context, {
+        addToPlayList: this.currentItem, // set a new playlist to add for Playlist.js>createPlayList
+      });
+      navigation.navigate("Playlist");
+    };
+
     return (
       <AudioContext.Consumer>
         {({ dataProvider, isPlaying }) => {
@@ -166,14 +96,21 @@ export class AudioList extends Component {
                 }}
                 visible={this.state.optionModalVisible}
                 onPlayPress={() => {
-                  console.log("paly");
+                  this.handleAudioPress(this.currentItem);
+                  // this.setState({ ...this.state, optionModalVisible: false });
                 }}
-                onPlayListPress={() => {
-                  this.context.updateState(this.context, {
-                    addToPlayList: this.currentItem, // set a new playlist to add for Playlist.js>createPlayList
-                  });
-                  navigation.navigate("Playlist");
-                }}
+                options={[
+                  {
+                    title: "Add to playlist",
+                    onPress: navigateToPlaylist,
+                  },
+                ]}
+                // onPlayListPress={() => {
+                //   this.context.updateState(this.context, {
+                //     addToPlayList: this.currentItem, // set a new playlist to add for Playlist.js>createPlayList
+                //   });
+                //   navigation.navigate("Playlist");
+                // }}
               />
             </Screen>
           );
