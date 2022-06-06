@@ -297,31 +297,38 @@ export const changeAudio = async (context, select) => {
 // --------------------------------end---------------------------------------------
 
 export const moveAudio = async (context, value) => {
-  const { soundObj, isPlaying, playbackObj, updateState, currentAudio } =
-    context;
+  const { soundObj, isPlaying, playbackObj, updateState } = context;
   // stop sliding
-  if (soundObj === null || !isPlaying) return;
+  if (soundObj === null) return;
   try {
-    // console.log("current posigonMillis is >>> ", context.playbackPosition);
-    const status = await playbackObj.setPositionAsync(
-      Math.floor(soundObj.durationMillis * value)
-    );
-    await updateState(context, {
-      soundObj: status,
-      isPlaying: true,
-      // playbackPosition: status.positionMillis,
-    });
+    if (isPlaying) {
+      // console.log("current posigonMillis is >>> ", context.playbackPosition);
+      const status = await playbackObj.setPositionAsync(
+        Math.floor(soundObj.durationMillis * value)
+      );
+      await updateState(context, {
+        soundObj: status,
+        isPlaying: true,
+        // playbackPosition: status.positionMillis,
+      });
 
-    const resumeStatus = await resume(playbackObj);
-    await updateState(context, {
-      soundObj: resumeStatus,
-      isPlaying: true,
-      playbackPosition: resumeStatus.positionMillis,
-    });
-    // currentAudio: audio,
-    //     soundObj: status,
-    //     isPlaying: true,
-    //     currentAudioIndex: index,
+      const resumeStatus = await resume(playbackObj);
+      await updateState(context, {
+        soundObj: resumeStatus,
+        isPlaying: true,
+        playbackPosition: resumeStatus.positionMillis,
+      });
+    } else {
+      // console.log("current posigonMillis is >>> ", context.playbackPosition);
+      const status = await playbackObj.setPositionAsync(
+        Math.floor(soundObj.durationMillis * value)
+      );
+      await updateState(context, {
+        soundObj: status,
+        isPlaying: false,
+        playbackPosition: status.positionMillis,
+      });
+    }
   } catch (error) {
     console.log("error inside onSlidingComplete", error);
   }
