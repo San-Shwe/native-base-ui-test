@@ -71,8 +71,8 @@ const MusicPlayer = ({ navigation }) => {
   }, []);
 
   // useEffect(() => {
-  //   handleFavourate();
-  // }, [selectAudio, changeAudio]);
+  //   console.log("-----------index use feect----------------");
+  // }, [context.currentAudio]);
 
   // const handleFavourate = async () => {
   //   const result = await AsyncStorage.getItem("playlist");

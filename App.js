@@ -83,10 +83,12 @@ const HomeStackScreen = ({ navigation }) => {
         name="PlayListDetails"
         options={{ headerShown: false, title: "Play List Details" }}
         component={PlayListDetails}
+        navigation={navigation}
       />
       <HomeStack.Screen
         name="Playlist"
         options={{ headerShown: false, title: "Play List" }}
+        navigation={navigation}
         component={Playlist}
       />
     </HomeStack.Navigator>

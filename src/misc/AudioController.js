@@ -20,7 +20,7 @@ export const play = async (playbackObj, uri, lastPosition = {}) => {
       { progressUpdateIntervalMillis: 1000 }
     );
 
-    return await playbackObj.playFromPositionAsync(lastPosition);
+    return playbackObj.playFromPositionAsync(lastPosition);
 
     // if(lastPosition)
   } catch (error) {
@@ -56,7 +56,7 @@ export const playNext = async (playbackObj, uri) => {
     console.log("playNext");
     await playbackObj.stopAsync();
     await playbackObj.unloadAsync();
-    return await play(playbackObj, uri);
+    return play(playbackObj, uri);
   } catch (error) {
     console.log("error indie playNext helper method", error);
   }
@@ -93,10 +93,16 @@ export const selectAudio = async (audio, context, playListInfo = {}) => {
       return storeAudioForNextOpening(audio, startIndex); // store current audio and its' index
     }
 
+    console.log(
+      soundObj.isLoaded,
+      soundObj.isPlaying,
+      currentAudio.id == audio.id
+    );
+
     // pause audio > if playing
     if (
       soundObj.isLoaded &&
-      soundObj.isPlaying &&
+      soundObj.isPlaying == true &&
       currentAudio.id == audio.id
     ) {
       const status = await pause(playbackObj);
@@ -119,7 +125,7 @@ export const selectAudio = async (audio, context, playListInfo = {}) => {
     // resume audio > if click recent song
     if (
       soundObj.isLoaded &&
-      !soundObj.isPlaying &&
+      soundObj.isPlaying == false &&
       currentAudio.id == audio.id
     ) {
       const status = await resume(playbackObj);
@@ -140,7 +146,7 @@ export const selectAudio = async (audio, context, playListInfo = {}) => {
       const status = await playNext(playbackObj, audio.uri);
       const index = audioFile.findIndex(({ id }) => id === audio.id);
       console.log(index, "from select another ");
-      updateState(context, {
+      await updateState(context, {
         currentAudio: audio,
         soundObj: status,
         isPlaying: true,
@@ -275,7 +281,7 @@ export const changeAudio = async (context, select) => {
       }
     }
 
-    updateState(context, {
+    await updateState(context, {
       currentAudio: audio,
       soundObj: status,
       isPlaying: true,
@@ -283,7 +289,7 @@ export const changeAudio = async (context, select) => {
       playbackPosition: null,
       playbackDuration: null,
     });
-    storeAudioForNextOpening(audio, index);
+    await storeAudioForNextOpening(audio, index);
   } catch (error) {
     console.log("error inside change audio method", error);
   }

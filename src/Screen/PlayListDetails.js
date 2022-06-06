@@ -6,6 +6,7 @@ import {
   FlatList,
   Modal,
   Dimensions,
+  TouchableOpacity,
 } from "react-native";
 import { selectAudio } from "../misc/AudioController";
 import AudioListItem from "../components/AudioListItem";
@@ -15,7 +16,7 @@ import { useTheme } from "react-native-paper";
 import OptionModal from "../components/OptionModal";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export const PlayListDetails = () => {
+export const PlayListDetails = ({ navigation }) => {
   const context = useContext(AudioContext);
   const { selectedPlayList } = context; // states from AudioProvider
   const { colors } = useTheme();
@@ -95,13 +96,65 @@ export const PlayListDetails = () => {
     }
     setAudios(newAudios);
     closeModal();
-    console.log("selected item is", selectedItem.id);
   };
 
+  const removePlaylist = async () => {
+    let isPlaying = context.isPlaying;
+    let isPlayListRunning = context.isPlayListRunning;
+    let soundObj = context.soundObj;
+    let playbackPosition = context.playbackPosition;
+    let activePlayList = context.activePlayList;
+
+    if (
+      context.isPlayListRunning &&
+      context.activePlayList.id === selectedPlayList.id
+    ) {
+      // stop
+      await context.playbackObj.stopAsync();
+      await context.playbackObj.unloadAsync();
+      isPlaying = false;
+      isPlayListRunning = false;
+      soundObj = null;
+      playbackPosition = 0;
+      activePlayList = [];
+    }
+
+    const result = await AsyncStorage.getItem("playlist");
+    if (result !== null) {
+      const oldPlaylist = JSON.parse(result);
+      const updatePlaylist = await oldPlaylist.filter(
+        (item) => item.id !== selectedPlayList.id
+      );
+
+      AsyncStorage.setItem("playlist", JSON.stringify(updatePlaylist));
+      context.updateState(context, {
+        playList: updatePlaylist,
+        isPlayListRunning,
+        isPlaying,
+        soundObj,
+        playbackPosition,
+        activePlayList,
+      });
+    }
+
+    navigation.navigate("Playlist");
+  };
   return (
     <>
       <View style={styles.container}>
-        <Text style={styles.title}>{selectedPlayList.title}</Text>
+        <View
+          style={{
+            width: "100%",
+            flexDirection: "row",
+            justifyContent: "space-around",
+            paddingHorizontal: 15,
+          }}
+        >
+          <Text style={styles.title}>{selectedPlayList.title}</Text>
+          <TouchableOpacity onPress={removePlaylist}>
+            <Text style={[styles.title, { color: colors.icon }]}>Delete</Text>
+          </TouchableOpacity>
+        </View>
         {audios.length ? (
           <FlatList
             contentContainerStyle={styles.listContainer}
@@ -152,7 +205,7 @@ const { width, height } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
   container: {
-    alignSelf: "center",
+    alignItems: "center",
   },
   modalBG: {
     top: 0,
