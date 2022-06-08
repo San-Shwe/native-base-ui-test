@@ -15,7 +15,17 @@ export const storeAudioForNextOpening = async (audio, index, lastPosition) => {
   }
 };
 
-// export const storeThemeForNextOpening = () => {}
+export const storeThemeForNextOpening = async (isDarkTheme) => {
+  try {
+    console.log("theme stored");
+    await AsyncStorage.setItem(
+      "previousTheme",
+      JSON.stringify({ isDarkTheme }) // store json format to text format
+    );
+  } catch (error) {
+    console.log("error from THEME store helper, -> ", error);
+  }
+};
 
 // convert to readable time
 export const convertTime = (minutes) => {
