@@ -2,10 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const storeAudioForNextOpening = async (audio, index, lastPosition) => {
   try {
-    console.log(
-      "-------------------------<<store>>-------------------------",
-      lastPosition
-    );
+    console.log("----------<<store>>---------", lastPosition);
     await AsyncStorage.setItem(
       "previousAudio",
       JSON.stringify({ audio: { ...audio, lastPosition }, index }) // store json format to text format

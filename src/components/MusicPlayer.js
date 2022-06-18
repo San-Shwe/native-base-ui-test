@@ -298,9 +298,9 @@ const MusicPlayer = ({ navigation }) => {
         <View style={styles.bottomControl}>
           <TouchableOpacity onPress={() => {}}>
             <Ionicons
-              name="heart-outline"
+              name={isFavourate ? "heart" : "heart-outline"}
               size={30}
-              style={{ color: isFavourate ? colors.icon : "#000" }}
+              style={{ color: colors.icon }}
             />
           </TouchableOpacity>
 

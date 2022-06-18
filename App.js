@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
-// import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { storeThemeForNextOpening } from "./src/misc/storeHelper";
 
 // IMPORT PACKAGES
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -101,6 +102,23 @@ const App = () => {
   const [userToken, setUserToken] = useState(null);
   const [isDarkTheme, setIsDarkTheme] = useState(false);
 
+  const loadTheme = async () => {
+    try {
+      const previousTheme = await AsyncStorage.getItem("previousTheme");
+      if (previousTheme !== null) {
+        const currentTheme = JSON.parse(previousTheme);
+        setIsDarkTheme(currentTheme.isDarkTheme);
+        console.log(currentTheme);
+      }
+    } catch (error) {
+      console.log("Error inside Load Theme ", error);
+    }
+  };
+
+  useEffect(() => {
+    loadTheme();
+  }, []);
+
   // Authentication Status Function
   const authContext = useMemo(() => ({
     signIn: () => {
@@ -116,6 +134,7 @@ const App = () => {
       setIsLoading(false);
     },
     toggleTheme: () => {
+      storeThemeForNextOpening(!isDarkTheme);
       setIsDarkTheme(!isDarkTheme);
     },
   }));
