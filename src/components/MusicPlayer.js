@@ -65,36 +65,49 @@ const MusicPlayer = ({ navigation }) => {
   //   };
   // }, []);
 
+  // const handleFavourate = async () => {
+  //   let allFav = await playList[0];
+  //   console.log("-------> ", allFav.audios);
+  //   if (allFav !== null) {
+  //     await allFav.audios.forEach((item) => {
+  //       if (item.id === currentAudio.id) {
+  //         console.log("current song is favourate");
+  //         return;
+  //       }
+  //       console.log(" Current song => ", item.id, " <> ", currentAudio.id);
+  //     });
+
+  //     // const result = words.filter(word => word.length > 6);
+
+  //     // console.log("result is ", checkFav);
+  //     // console.log("result is ", typeof checkFav);
+  //     // const previousAudio = JSON.parse(result);
+
+  //     //   const favAudios = result[0].audios;
+  //     //   favAudios.map((item) => {
+  //     //     if (item.id === currentAudio.id) {
+  //     //       console.log(
+  //     //         "---------------------------current audio is favourate------------------------------"
+  //     //       );
+  //     //       // isFavourate(true);
+  //     //       return context.updateState(context, { isFavourate: true });
+  //     //     }
+  //     //   });
+  //     //   // isFavourate(false);
+  //     //   return context.updateState(context, { isFavourate: false });
+  //     //   // console.log("IS MY FAVOURATE", previousAudio);
+  //   }
+  // };
+
   useEffect(() => {
     context.loadPreviousAudio();
     // console.log("use Effect > ", currentAudio);
   }, []);
 
   useEffect(() => {
-    console.log("-----------index use feect----------------");
+    // console.log("-----------index use feect----------------");
+    context.handleFavourate();
   }, [context.currentAudio]);
-
-  // const handleFavourate = async () => {
-  //   const result = await AsyncStorage.getItem("playlist");
-  //   if (result !== null) {
-  //     const previousAudio = JSON.parse(result);
-
-  //     const favAudios = previousAudio[0].audios;
-  //     favAudios.map((item) => {
-  //       if (item.id === currentAudio.id) {
-  //         console.log(
-  //           "---------------------------current audio is favourate------------------------------"
-  //         );
-  //         setFavourate(true);
-  //         return;
-  //       } else {
-  //         setFavourate(false);
-  //       }
-  //     });
-  //     context.updateState(context, { isFavourate: favourate });
-  //     console.log("IS MY FAVOURATE", previousAudio);
-  //   }
-  // };
 
   // skip to next audio ---------------------------------------------------------
   const skipForward = async () => {

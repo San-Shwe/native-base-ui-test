@@ -6,6 +6,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Audio } from "expo-av";
 import { storeAudioForNextOpening } from "../misc/storeHelper";
 import { playNext } from "../misc/AudioController";
+import { createKeyboardAwareNavigator } from "react-navigation";
 
 export const AudioContext = createContext();
 
@@ -118,7 +119,20 @@ export class AudioProvider extends Component {
       currentAudioIndex = previousAudio.index; // assign current audio index
       console.log(previousAudio.audio);
     }
-    return this.setState({ ...this.state, currentAudio, currentAudioIndex }); //
+    const previousPlaylist = await AsyncStorage.getItem("playlist"); // is any playlist?
+    let playList;
+    if (previousPlaylist === null) {
+      // playList = [];
+    } else {
+      playList = JSON.parse(previousPlaylist);
+    }
+
+    return this.setState({
+      ...this.state,
+      currentAudio,
+      currentAudioIndex,
+      playList,
+    }); //
   };
 
   // update status regularly
@@ -196,6 +210,28 @@ export class AudioProvider extends Component {
     }
   };
 
+  // this function don't work without trycatch
+  handleFavourate = async () => {
+    try {
+      let allFav = this.state.playList[0];
+      if (allFav !== null) {
+        let isFavourate = false;
+        await allFav.audios.every((item) => {
+          if (item.id === this.state.currentAudio.id) {
+            isFavourate = true;
+            return false;
+          }
+          console.log("----------- favourate ", isFavourate);
+          return true;
+        });
+        console.log("-----------end favourate", isFavourate);
+        return this.updateState(this, { isFavourate });
+      }
+    } catch (error) {
+      console.log("error is inside Favourate Handle ", error);
+    }
+  };
+
   // do on load
   componentDidMount() {
     this.getPermission();
@@ -258,6 +294,7 @@ export class AudioProvider extends Component {
           isPlayListRunning,
           activePlayList,
           isFavourate,
+          handleFavourate: this.handleFavourate,
           updateState: this.updateState,
           loadPreviousAudio: this.loadPreviousAudio,
           onPlaybackStatusUpdate: this.onPlaybackStatusUpdate,
