@@ -8,6 +8,7 @@ import {
   Image,
   Animated,
 } from "react-native";
+import * as Font from "expo-font";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "react-native-paper";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -36,6 +37,7 @@ const MusicPlayer = ({ navigation }) => {
   const { playbackPosition, playbackDuration, currentAudio, isFavourate } =
     context;
   const { colors } = useTheme();
+  const [fontLoaded, setFontLoaded] = useState(false);
 
   const calculateSeebBar = () => {
     if (playbackDuration !== null && playbackPosition !== null) {
@@ -74,7 +76,7 @@ const MusicPlayer = ({ navigation }) => {
 
   useEffect(() => {
     context.loadPreviousAudio();
-    console.log("use Effect > ", context.audio);
+    loadAssetsAsync();
   }, []);
 
   useEffect(() => {
@@ -164,24 +166,25 @@ const MusicPlayer = ({ navigation }) => {
         });
 
         return storePlayListForNextOpening(updatedList);
-
-        // await AsyncStorage.setItem(
-        //   "playlist",
-        //   JSON.stringify([...updatedList])
-        // );
-
-        // return storeAudioForNextOpening();
-        // await AsyncStorage.setItem(
-        //   "playlist",
-        //   JSON.stringify([...updatedList])
-        // );
       }
     } catch (error) {
       console.log("Error inside handleFavourateSet Or Remove", error);
     }
   };
 
-  if (!context.currentAudio) return null;
+  // if (!context.currentAudio) return null;
+
+  const loadAssetsAsync = async () => {
+    await Font.loadAsync({
+      "Roboto-ThinItalic": require("../assets/fonts/Roboto-ThinItalic.ttf"),
+      "Roboto-Italic": require("../assets/fonts/Roboto-Italic.ttf"),
+    });
+    setFontLoaded(true);
+  };
+
+  if (!fontLoaded && !context.currentAudio) {
+    return <AppLoading />;
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -190,10 +193,18 @@ const MusicPlayer = ({ navigation }) => {
           <View style={{ flexDirection: "row" }}>
             {context.isPlayListRunning ? (
               <>
-                <Text style={{ fontWeight: "bold", color: colors.text }}>
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    color: colors.text,
+                    fontFamily: "Roboto-ThinItalic",
+                  }}
+                >
                   From Playlist :{" "}
                 </Text>
-                <Text style={{ color: colors.subTxt }}>
+                <Text
+                  style={{ color: colors.subTxt, fontFamily: "Roboto-Italic" }}
+                >
                   {context.activePlayList.title}
                 </Text>
               </>
@@ -295,11 +306,7 @@ const MusicPlayer = ({ navigation }) => {
           >
             <Ionicons
               style={{ color: colors.icon }}
-              name={
-                context.isPlaying
-                  ? "pause-circle-outline"
-                  : "play-circle-outline"
-              }
+              name={context.isPlaying ? "pause-circle" : "play-circle"}
               size={75}
             />
           </TouchableOpacity>

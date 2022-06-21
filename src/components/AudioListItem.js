@@ -39,11 +39,9 @@ const convertTime = (minutes) => {
 
 const renderPlayPauseIcon = (isPlaying) => {
   if (isPlaying) {
-    return (
-      <Ionicons name="pause-outline" size={25} style={{ color: "#fff" }} />
-    );
+    return <Ionicons name="pause" size={25} style={{ color: "#fff" }} />;
   } else {
-    return <Ionicons name="play-outline" size={25} style={{ color: "#fff" }} />;
+    return <Ionicons name="play" size={25} style={{ color: "#fff" }} />;
   }
 };
 
@@ -67,7 +65,7 @@ const AudioListItem = ({
                 styles.thumbnail,
                 {
                   backgroundColor: activeListItem
-                    ? color.ACTIVE_BG
+                    ? colors.icon
                     : color.FONT_LIGHT,
                 },
               ]}
@@ -84,7 +82,7 @@ const AudioListItem = ({
                 style={[
                   styles.title,
                   {
-                    color: activeListItem ? color.ACTIVE_BG : colors.text,
+                    color: activeListItem ? colors.icon : colors.text,
                   },
                 ]}
               >
@@ -99,7 +97,7 @@ const AudioListItem = ({
         <View style={styles.rightContainer}>
           <Ionicons
             onPress={onOptionPress} // work onOptionPress function on parent component
-            name="ellipsis-vertical-outline"
+            name="ellipsis-vertical"
             size={25}
             style={{ color: colors.text }}
           />

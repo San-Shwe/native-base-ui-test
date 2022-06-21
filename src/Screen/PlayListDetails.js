@@ -24,15 +24,6 @@ export const PlayListDetails = ({ navigation }) => {
   const [selectedItem, setSelectedItem] = useState({});
   const [audios, setAudios] = useState(selectedPlayList.audios);
 
-  // useEffect(() => {
-  //   console.log(
-  //     "________________________________ selected Playlist is ___________-",
-  //     selectedPlayList
-  //   );
-  // }, []);
-
-  // const { param1, param2 } = route.params;
-
   const playAudio = async (item) => {
     await selectAudio(item, context, {
       isPlayListRunning: true,
@@ -150,7 +141,9 @@ export const PlayListDetails = ({ navigation }) => {
             paddingHorizontal: 15,
           }}
         >
-          <Text style={styles.title}>{selectedPlayList.title}</Text>
+          <Text style={[styles.title, { color: colors.icon }]}>
+            {selectedPlayList.title}
+          </Text>
           <TouchableOpacity onPress={removePlaylist}>
             <Text style={[styles.title, { color: colors.icon }]}>Delete</Text>
           </TouchableOpacity>
@@ -224,6 +217,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     paddingVertical: 5,
-    color: color.ACTIVE_BG,
+    // color: color.ACTIVE_BG,
   },
 });

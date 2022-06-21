@@ -154,10 +154,11 @@ const App = () => {
       ...PaperDefaultTheme.colors,
       text: "#333333",
       subTxt: "#413F42",
-      icon: "#9B0000",
+      icon: "#990011FF",
       opacity: "#7F8487",
     },
   };
+  // 9B0000
 
   const CustomDarkTheme = {
     ...NavigationDarkTheme,
@@ -167,10 +168,11 @@ const App = () => {
       ...PaperDarkTheme.colors,
       text: "#fff",
       subTxt: "#F1EEE9",
-      icon: "#97BFB4",
+      icon: "#03DAC5",
       opacity: "#99A799",
     },
   };
+  // #97BFB4 > icon
 
   const theme = isDarkTheme ? CustomDarkTheme : CustomDefaultTheme;
 
