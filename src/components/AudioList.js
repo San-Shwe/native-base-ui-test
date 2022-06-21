@@ -6,7 +6,6 @@ import AudioListItem from "./AudioListItem";
 import Screen from "./Screen";
 import OptionModal from "./OptionModal";
 import { selectAudio } from "../misc/AudioController";
-// import { storeAudioForNextOpening } from "../misc/storeHelper";
 
 export class AudioList extends Component {
   static contextType = AudioContext; // class rule - to use audio object
@@ -105,12 +104,6 @@ export class AudioList extends Component {
                     onPress: navigateToPlaylist,
                   },
                 ]}
-                // onPlayListPress={() => {
-                //   this.context.updateState(this.context, {
-                //     addToPlayList: this.currentItem, // set a new playlist to add for Playlist.js>createPlayList
-                //   });
-                //   navigation.navigate("Playlist");
-                // }}
               />
             </Screen>
           );

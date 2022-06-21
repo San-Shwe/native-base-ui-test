@@ -24,6 +24,15 @@ export const storeThemeForNextOpening = async (isDarkTheme) => {
   }
 };
 
+export const storePlayListForNextOpening = async (updatedList) => {
+  try {
+    console.log("----------<<store>>--------- playlist");
+    await AsyncStorage.setItem("playlist", JSON.stringify([...updatedList]));
+  } catch (error) {
+    console.log("error from store Playlist helper, -> ", error);
+  }
+};
+
 // convert to readable time
 export const convertTime = (minutes) => {
   if (minutes) {

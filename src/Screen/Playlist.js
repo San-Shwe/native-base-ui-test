@@ -12,14 +12,14 @@ import { useTheme } from "react-native-paper";
 import PlayListInputModal from "./PlayListInputModal";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AudioContext } from "../components/AudioProvider";
-import { PlayListDetails } from "./PlayListDetails";
+// import { PlayListDetails } from "./PlayListDetails";
 
 let selectedPlaylist = {};
 
 export const Playlist = ({ navigation, route }) => {
   const { colors } = useTheme();
   const [modalVisible, setModalVisible] = useState(false);
-  const [showPlayListDetails, setShowPlayListDeteils] = useState(false);
+  // const [showPlayListDetails, setShowPlayListDeteils] = useState(false);
 
   const context = useContext(AudioContext);
   const { playList, addToPlayList, updateState } = context;
@@ -70,10 +70,11 @@ export const Playlist = ({ navigation, route }) => {
   };
 
   useEffect(() => {
-    if (!playList.length) {
+    if (!context.playList.length) {
       // if there is no playlist to
       renderPlaylist();
     }
+    console.log(context.playList.length);
   }, []);
 
   const handleBannerPress = async (item) => {
@@ -133,7 +134,7 @@ export const Playlist = ({ navigation, route }) => {
   return (
     <>
       <ScrollView contentContainerStyle={styles.container}>
-        {playList.length
+        {context.playList.length
           ? playList.map((item) => (
               <TouchableOpacity
                 key={item.id.toString()}

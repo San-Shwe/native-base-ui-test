@@ -6,7 +6,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Audio } from "expo-av";
 import { storeAudioForNextOpening } from "../misc/storeHelper";
 import { playNext } from "../misc/AudioController";
-import { createKeyboardAwareNavigator } from "react-navigation";
 
 export const AudioContext = createContext();
 
@@ -122,7 +121,7 @@ export class AudioProvider extends Component {
     const previousPlaylist = await AsyncStorage.getItem("playlist"); // is any playlist?
     let playList;
     if (previousPlaylist === null) {
-      // playList = [];
+      playList = [];
     } else {
       playList = JSON.parse(previousPlaylist);
     }
@@ -213,7 +212,7 @@ export class AudioProvider extends Component {
   // this function don't work without trycatch
   handleFavourate = async () => {
     try {
-      let allFav = this.state.playList[0];
+      let allFav = this.state.playList[0]; // get the favourate playlist
       if (allFav !== null) {
         let isFavourate = false;
         await allFav.audios.every((item) => {

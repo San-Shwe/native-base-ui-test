@@ -11,6 +11,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "react-native-paper";
 import Ionicons from "react-native-vector-icons/Ionicons";
+// import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+// import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import Slider from "@react-native-community/slider";
 import { songs } from "../model/data"; // {songs}, songs
 import { AudioContext } from "./AudioProvider";
@@ -20,8 +22,11 @@ import {
   pause,
   moveAudio,
 } from "../misc/AudioController";
-import { convertTime } from "../misc/storeHelper";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  convertTime,
+  storeAudioForNextOpening,
+  storePlayListForNextOpening,
+} from "../misc/storeHelper";
 
 const { width, height } = Dimensions.get("window");
 
@@ -42,6 +47,8 @@ const MusicPlayer = ({ navigation }) => {
     }
     return 0;
   };
+
+  // const Icon = <FontAwesome5 name={"comments"} />;
 
   // catch animated values
   const scrollX = useRef(new Animated.Value(0)).current;
@@ -65,43 +72,9 @@ const MusicPlayer = ({ navigation }) => {
   //   };
   // }, []);
 
-  // const handleFavourate = async () => {
-  //   let allFav = await playList[0];
-  //   console.log("-------> ", allFav.audios);
-  //   if (allFav !== null) {
-  //     await allFav.audios.forEach((item) => {
-  //       if (item.id === currentAudio.id) {
-  //         console.log("current song is favourate");
-  //         return;
-  //       }
-  //       console.log(" Current song => ", item.id, " <> ", currentAudio.id);
-  //     });
-
-  //     // const result = words.filter(word => word.length > 6);
-
-  //     // console.log("result is ", checkFav);
-  //     // console.log("result is ", typeof checkFav);
-  //     // const previousAudio = JSON.parse(result);
-
-  //     //   const favAudios = result[0].audios;
-  //     //   favAudios.map((item) => {
-  //     //     if (item.id === currentAudio.id) {
-  //     //       console.log(
-  //     //         "---------------------------current audio is favourate------------------------------"
-  //     //       );
-  //     //       // isFavourate(true);
-  //     //       return context.updateState(context, { isFavourate: true });
-  //     //     }
-  //     //   });
-  //     //   // isFavourate(false);
-  //     //   return context.updateState(context, { isFavourate: false });
-  //     //   // console.log("IS MY FAVOURATE", previousAudio);
-  //   }
-  // };
-
   useEffect(() => {
     context.loadPreviousAudio();
-    // console.log("use Effect > ", currentAudio);
+    console.log("use Effect > ", context.audio);
   }, []);
 
   useEffect(() => {
@@ -157,6 +130,56 @@ const MusicPlayer = ({ navigation }) => {
     // console.log("current audio is (handlePlayPause) >> ", context.currentAudio);
   };
   // ---------------------------------------------- ----------------------------------------
+
+  const handleFavourateSetOrRemove = async () => {
+    try {
+      let oldList = await context.playList;
+      let updatedList = [];
+
+      if (oldList !== null) {
+        if (!isFavourate) {
+          console.log("not favourate ----------------><");
+          updatedList = await oldList.filter((list) => {
+            if (list.title == "My Favourate") {
+              list.audios = [...list.audios, currentAudio];
+            }
+            return list;
+          });
+        }
+        if (isFavourate) {
+          updatedList = await oldList.filter((list) => {
+            if (list.title == "My Favourate") {
+              console.log("remove from favourate ----------------><");
+              list.audios = list.audios.filter((audio) => {
+                return audio.id !== currentAudio.id;
+              });
+            }
+            return list;
+          });
+        }
+        // update current updated list
+        await context.updateState(this, {
+          isFavourate: !isFavourate,
+          playList: [...updatedList],
+        });
+
+        return storePlayListForNextOpening(updatedList);
+
+        // await AsyncStorage.setItem(
+        //   "playlist",
+        //   JSON.stringify([...updatedList])
+        // );
+
+        // return storeAudioForNextOpening();
+        // await AsyncStorage.setItem(
+        //   "playlist",
+        //   JSON.stringify([...updatedList])
+        // );
+      }
+    } catch (error) {
+      console.log("Error inside handleFavourateSet Or Remove", error);
+    }
+  };
 
   if (!context.currentAudio) return null;
 
@@ -296,7 +319,12 @@ const MusicPlayer = ({ navigation }) => {
         style={[styles.bottomContainer, { borderTopColor: colors.opacity }]}
       >
         <View style={styles.bottomControl}>
-          <TouchableOpacity onPress={() => {}}>
+          <TouchableOpacity
+            onPress={() => {
+              console.log("hello HEART");
+              handleFavourateSetOrRemove();
+            }}
+          >
             <Ionicons
               name={isFavourate ? "heart" : "heart-outline"}
               size={30}
@@ -311,10 +339,9 @@ const MusicPlayer = ({ navigation }) => {
               style={{ color: colors.icon }}
             />
           </TouchableOpacity>
-
           <TouchableOpacity onPress={() => {}}>
             <Ionicons
-              name="albums-outline"
+              name="file-tray-stacked-outline"
               size={30}
               style={{ color: colors.icon }}
               onPress={() => {
@@ -322,15 +349,14 @@ const MusicPlayer = ({ navigation }) => {
               }}
             />
           </TouchableOpacity>
-
           <TouchableOpacity onPress={() => {}}>
             <Ionicons
               name="list-outline"
+              size={30}
+              style={{ color: colors.icon }}
               onPress={() => {
                 navigation.navigate("AudioList");
               }}
-              style={{ color: colors.icon }}
-              size={30}
             />
           </TouchableOpacity>
 
