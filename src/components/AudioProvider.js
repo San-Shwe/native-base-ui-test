@@ -235,10 +235,21 @@ export class AudioProvider extends Component {
   componentDidMount() {
     this.getPermission();
     if (this.state.playbackObj === null) {
+      Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+        staysActiveInBackground: true,
+        interruptionModeIOS: Audio.INTERRUPTION_MODE_ANDROID_DUCK_OTHERS,
+        playsInSilentModeIOS: true,
+        shouldDuckAndroid: true,
+        interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DUCK_OTHERS,
+        playThroughEarpieceAndroid: false,
+      });
       this.setState({ ...this.state, playbackObj: new Audio.Sound() });
+      console.log("playback Obj is Null on load");
       // console.log(" NULL ---> ", this.state.playbackObj);
     } else {
       // console.log(" NOT NULL ---> ", this.state.playbackObj.getStatusAsync());
+      console.log("playback Obj is NOT Null on load");
     }
   }
 

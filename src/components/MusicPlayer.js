@@ -178,6 +178,10 @@ const MusicPlayer = ({ navigation }) => {
     await Font.loadAsync({
       "Roboto-ThinItalic": require("../assets/fonts/Roboto-ThinItalic.ttf"),
       "Roboto-Italic": require("../assets/fonts/Roboto-Italic.ttf"),
+      "Roboto-Regular": require("../assets/fonts/Roboto-Regular.ttf"),
+      "Roboto-Bold": require("../assets/fonts/Roboto-Bold.ttf"),
+      "Roboto-Black": require("../assets/fonts/Roboto-Black.ttf"),
+      "Roboto-Light": require("../assets/fonts/Roboto-Light.ttf"),
     });
     setFontLoaded(true);
   };
@@ -197,7 +201,6 @@ const MusicPlayer = ({ navigation }) => {
                   style={{
                     fontWeight: "bold",
                     color: colors.text,
-                    fontFamily: "Roboto-ThinItalic",
                   }}
                 >
                   From Playlist :{" "}
@@ -418,15 +421,17 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
   songTitle: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: "600",
     textAlign: "center",
+    fontFamily: "Roboto-Regular",
   },
   artistName: {
     fontSize: 16,
     fontWeight: "200",
     textAlign: "center",
     color: "#1A3C40",
+    fontFamily: "Roboto-Light",
   },
   progressContainer: {
     width: 350,
@@ -446,7 +451,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   progressLableTxt: {
-    // color: "#1A3C40",
+    fontFamily: "Roboto-Light",
     fontSize: 16,
   },
   bottomContainer: {

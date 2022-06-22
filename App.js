@@ -36,37 +36,6 @@ const HomeStack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
 
-// const PlayListScreen = ({ navigation }) => {
-//   return (
-//     <Stack.Navigator
-//       screenOptions={({ route }) => ({
-//         headerStyle: {
-//           backgroundColor: "salmon",
-//         },
-//         headerTintColor: "white",
-//         headerTitleStyle: {
-//           fontWeight: "bold",
-//         },
-//       })}
-//     >
-//       <Stack.Screen
-//         navigation={navigation}
-//         route={route}
-//         name="Playlist"
-//         options={{ headerShown: false, title: "Play List" }}
-//         component={Playlist}
-//       />
-//       <Stack.Screen
-//         navigation={navigation}
-//         route={route}
-//         name="PlayListDetails"
-//         options={{ headerShown: false, title: "Play List Details" }}
-//         component={PlayListDetails}
-//       />
-//     </Stack.Navigator>
-//   );
-// };
-
 const HomeStackScreen = ({ navigation }) => {
   return (
     <HomeStack.Navigator>
@@ -97,7 +66,6 @@ const HomeStackScreen = ({ navigation }) => {
 };
 
 const App = () => {
-  // const [newStart, setNewStart] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [userToken, setUserToken] = useState(null);
   const [isDarkTheme, setIsDarkTheme] = useState(false);
@@ -158,7 +126,6 @@ const App = () => {
       opacity: "#7F8487",
     },
   };
-  // 9B0000
 
   const CustomDarkTheme = {
     ...NavigationDarkTheme,
@@ -172,7 +139,6 @@ const App = () => {
       opacity: "#99A799",
     },
   };
-  // #97BFB4 > icon
 
   const theme = isDarkTheme ? CustomDarkTheme : CustomDefaultTheme;
 
@@ -201,16 +167,6 @@ const App = () => {
                 />
                 <Drawer.Screen name="Profile" component={ProfileScreen} />
                 <Drawer.Screen name="Support" component={SupportScreen} />
-                {/* <Drawer.Screen
-                  name="PlayListScreen"
-                  options={{ headerShown: false, title: "Play List" }}
-                  component={PlayListScreen}
-                /> */}
-                {/* <Drawer.Screen
-                  name="PlayListDetails"
-                  options={{ headerShown: false, title: "Play List Details" }}
-                  component={PlayListDetails}
-                /> */}
               </Drawer.Navigator>
             ) : (
               <RootStackScreen />
