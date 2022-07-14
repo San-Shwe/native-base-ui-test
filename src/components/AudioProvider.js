@@ -4,7 +4,10 @@ import * as MediaLibrary from "expo-media-library";
 import { DataProvider } from "recyclerlistview";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Audio } from "expo-av";
-import { storeAudioForNextOpening } from "../misc/storeHelper";
+import {
+  storeAudioForNextOpening,
+  storeArtworkForTheNextOpening,
+} from "../misc/storeHelper";
 import { playNext } from "../misc/AudioController";
 
 export const AudioContext = createContext();
@@ -29,6 +32,7 @@ export class AudioProvider extends Component {
       isPlayListRunning: false, // to know it is playing inside Playlist
       activePlayList: [], // current playing Playlist, not audio list
       isFavourate: false,
+      artworkList: [], // artWork for FlatList or Slider
     };
     this.totalAudioCount = 0;
   }
@@ -111,13 +115,33 @@ export class AudioProvider extends Component {
       console.log("previous audio is null");
       currentAudio = this.state.audioFile[0]; // set first audio if there is no audio in storage
       currentAudioIndex = 0;
+      storeArtworkForTheNextOpening(this.state.artworkList); // store for the next opening if there is no artwork
     } else {
       console.log("previous audio have data");
       previousAudio = JSON.parse(previousAudio); // reconvert json format
       currentAudio = previousAudio.audio; // assign to currentAudio
       currentAudioIndex = previousAudio.index; // assign current audio index
-      console.log(previousAudio.audio);
+      // console.log(previousAudio.audio);
     }
+
+    // get previous Artwork--------------------------------------------------
+    let previousArtwork = await AsyncStorage.getItem("artwork"); // get the item that we store
+    if (previousArtwork === null) {
+      console.log("previous artwork is null");
+      // add default artwork if there is no artwork
+      this.state.audioFile.forEach((audio) => {
+        this.state.artworkList.push({
+          id: audio.id,
+          image: require("../assets/img/adaptive-icon.png"),
+        });
+      });
+      storeArtworkForTheNextOpening(this.state.artworkList);
+    } else {
+      console.log("previous artwork have data");
+      artworkList = JSON.parse(previousArtwork); // reconvert json format
+    }
+
+    // get previous Playlist-------------------------------------------------
     const previousPlaylist = await AsyncStorage.getItem("playlist"); // is any playlist?
     let playList;
     if (previousPlaylist === null) {
@@ -271,6 +295,7 @@ export class AudioProvider extends Component {
       isPlayListRunning,
       activePlayList,
       isFavourate,
+      artworkList,
     } = this.state;
     // show this screen if user denined audio permission
     if (permissionError) {
@@ -304,6 +329,7 @@ export class AudioProvider extends Component {
           isPlayListRunning,
           activePlayList,
           isFavourate,
+          artworkList,
           handleFavourate: this.handleFavourate,
           updateState: this.updateState,
           loadPreviousAudio: this.loadPreviousAudio,

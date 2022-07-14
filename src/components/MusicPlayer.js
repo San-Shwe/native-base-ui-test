@@ -50,8 +50,6 @@ const MusicPlayer = ({ navigation }) => {
     return 0;
   };
 
-  // const Icon = <FontAwesome5 name={"comments"} />;
-
   // catch animated values
   const scrollX = useRef(new Animated.Value(0)).current;
 
@@ -62,17 +60,18 @@ const MusicPlayer = ({ navigation }) => {
   // song slider ref to catch current song track
   const songSlider = useRef(0);
 
-  // useEffect(() => {
-  //   scrollX.addListener(({ value }) => {
-  //     // console.log("Scroll x", scrollX);
-  //     const index = Math.round(value / width);
-  //     setSongIndex(index);
-  //   });
-  //   // remove all listener for skip next and skip previous button
-  //   return () => {
-  //     scrollX.removeAllListeners();
-  //   };
-  // }, []);
+  //
+  useEffect(() => {
+    scrollX.addListener(({ value }) => {
+      // console.log("Scroll x", scrollX);
+      const index = Math.round(value / width);
+      setSongIndex(index);
+    });
+    // remove all listener for skip next and skip previous button
+    return () => {
+      scrollX.removeAllListeners();
+    };
+  }, []);
 
   useEffect(() => {
     context.loadPreviousAudio();
@@ -174,6 +173,7 @@ const MusicPlayer = ({ navigation }) => {
 
   // if (!context.currentAudio) return null;
 
+  // Load Font to use For this Screen only
   const loadAssetsAsync = async () => {
     await Font.loadAsync({
       "Roboto-ThinItalic": require("../assets/fonts/Roboto-ThinItalic.ttf"),
@@ -227,7 +227,7 @@ const MusicPlayer = ({ navigation }) => {
         <View style={{ width: width }}>
           <Animated.FlatList
             ref={songSlider}
-            data={songs}
+            data={context.artworkList}
             renderItem={renderSongs}
             keyExtractor={(item) => item.id}
             horizontal

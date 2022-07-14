@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const storeAudioForNextOpening = async (audio, index, lastPosition) => {
   try {
-    console.log("----------<<store>>---------", lastPosition);
+    console.log("----------<<store>>---------last-position", lastPosition);
     await AsyncStorage.setItem(
       "previousAudio",
       JSON.stringify({ audio: { ...audio, lastPosition }, index }) // store json format to text format
@@ -30,6 +30,15 @@ export const storePlayListForNextOpening = async (updatedList) => {
     await AsyncStorage.setItem("playlist", JSON.stringify([...updatedList]));
   } catch (error) {
     console.log("error from store Playlist helper, -> ", error);
+  }
+};
+
+export const storeArtworkForTheNextOpening = async (artWork) => {
+  try {
+    console.log("----------<<store>>--------- artwork");
+    await AsyncStorage.setItem("artwork", JSON.stringify([...artWork]));
+  } catch (error) {
+    console.log("error from store artwork helper, -> ", error);
   }
 };
 
