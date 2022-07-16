@@ -12,8 +12,6 @@ import * as Font from "expo-font";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "react-native-paper";
 import Ionicons from "react-native-vector-icons/Ionicons";
-// import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-// import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import Slider from "@react-native-community/slider";
 import { songs } from "../model/data"; // {songs}, songs
 import { AudioContext } from "./AudioProvider";
@@ -28,16 +26,34 @@ import {
   storeAudioForNextOpening,
   storePlayListForNextOpening,
 } from "../misc/storeHelper";
+import SVGImg from "../assets/artwork/music-svgrepo-com.svg";
 
 const { width, height } = Dimensions.get("window");
+let currentSlideIndex = 0;
+let onSetup = true;
+let artworkIndex = 0;
 
 const MusicPlayer = ({ navigation }) => {
   // context
   const context = useContext(AudioContext);
-  const { playbackPosition, playbackDuration, currentAudio, isFavourate } =
-    context;
+  const {
+    playbackPosition,
+    playbackDuration,
+    currentAudio,
+    isFavourate,
+    currentAudioIndex,
+  } = context;
   const { colors } = useTheme();
   const [fontLoaded, setFontLoaded] = useState(false);
+  // catch animated values
+  const scrollX = useRef(new Animated.Value(0)).current;
+
+  // song index state for song's title and artist name
+  const [songIndex, setSongIndex] = useState(currentAudioIndex);
+  const [currentPosition, setCurrentPosition] = useState(0);
+
+  // song slider ref to catch current song track
+  const songSlider = useRef();
 
   const calculateSeebBar = () => {
     if (playbackDuration !== null && playbackPosition !== null) {
@@ -50,59 +66,102 @@ const MusicPlayer = ({ navigation }) => {
     return 0;
   };
 
-  // catch animated values
-  const scrollX = useRef(new Animated.Value(0)).current;
-
-  // song index state for song's title and artist name
-  const [songIndex, setSongIndex] = useState(0);
-  const [currentPosition, setCurrentPosition] = useState(0);
-
-  // song slider ref to catch current song track
-  const songSlider = useRef(0);
-
   //
-  useEffect(() => {
-    scrollX.addListener(({ value }) => {
-      // console.log("Scroll x", scrollX);
-      const index = Math.round(value / width);
-      setSongIndex(index);
-    });
-    // remove all listener for skip next and skip previous button
-    return () => {
-      scrollX.removeAllListeners();
-    };
+  // useEffect(() => {
+  //   scrollX.addListener(({ value }) => {
+  //     console.log("Scroll x", scrollX);
+  //     const index = Math.round(value / width);
+  //     console.log("index is ", onSetup);
+
+  //     console.log(" song index  > ", index, " <> ", songIndex);
+  //     if (onSetup === false) {
+  //       if (index >= songIndex) {
+  //         changeAudio(context, "next");
+  //       } else if (index < songIndex) {
+  //         changeAudio(context, "previous");
+  //       }
+  //     }
+
+  //     // setSongIndex(index);
+  //   });
+  //   // remove all listener for skip next and skip previous button
+  //   return () => {
+  //     scrollX.removeAllListeners();
+  //   };
+  // }, [scrollX]);
+
+  const onViewableItemsChanged = useRef(({ viewableItems }) => {
+    currentSlideIndex = viewableItems[0]?.index || 0;
+    if (onSetup === false) {
+      // await selectAudio(context.currentAudio, context);
+      if (currentSlideIndex - 1 === artworkIndex) {
+        // changeAudio(context, "next");
+        console.log("go to next !!!!!!!!!!!!!!!!!!");
+      } else if (currentSlideIndex + 1 === artworkIndex) {
+        // changeAudio(context, "previous");
+        console.log("go to previous !!!!!!!!!!!!!!!!!!");
+      }
+    }
+
+    // setSongIndex(currentSlideIndex);
+
+    console.log(
+      "singindex ",
+      artworkIndex,
+      "currentslide index ",
+      currentSlideIndex
+    );
+    artworkIndex = currentSlideIndex;
+  });
+
+  useEffect(async () => {
+    await context.loadPreviousAudio();
+    await loadAssetsAsync(); // load font
+    artworkIndex = await currentAudioIndex;
+    // pause(context.playbackObj);
   }, []);
 
-  useEffect(() => {
-    context.loadPreviousAudio();
-    loadAssetsAsync();
-  }, []);
+  const handleScrollTo = (index) => {
+    songSlider.current.scrollToIndex({ animated: false, index });
+  };
 
-  useEffect(() => {
-    // console.log("-----------index use feect----------------");
-    context.handleFavourate();
-  }, [context.currentAudio]);
+  // set current index on slider change | for the infinite loop slider
+  const viewabilityConfig = useRef({
+    viewAreaCoveragePercentThreshold: 50,
+  });
+
+  // useEffect(() => {
+  // }, [context.currentAudio]);
 
   // skip to next audio ---------------------------------------------------------
   const skipForward = async () => {
     await changeAudio(context, "next");
-
-    // move next slider
     songSlider.current.scrollToOffset({
-      offset: (songIndex + 1) * width,
+      offset: (currentAudioIndex + 1) * width,
     });
+    // handleScrollTo(currentAudioIndex + 1);
   };
   // ----------------------------------------------------------------------------
   // skip to previous audio ----------------------start--------------------------------
   const skipBackward = async () => {
     await changeAudio(context, "previous");
-
-    // move previous slider
     songSlider.current.scrollToOffset({
-      offset: (songIndex - 1) * width,
+      offset: (currentAudioIndex - 1) * width,
     });
+    // handleScrollTo(currentAudioIndex - 1);
   };
   //-----------------------------end-------------------------
+
+  useEffect(() => {
+    if (onSetup === false) {
+      //   handleScrollTo(currentAudioIndex);
+      songSlider.current.scrollToOffset({
+        offset: currentAudioIndex * width,
+      });
+      console.log("current index is ", currentAudioIndex);
+    }
+    context.handleFavourate();
+  }, [currentAudioIndex]);
 
   // To render songs in music player screen
   const renderSongs = ({ index, item }) => {
@@ -111,7 +170,15 @@ const MusicPlayer = ({ navigation }) => {
         style={{ width: width, justifyContent: "center", alignItems: "center" }}
       >
         <View style={styles.artworkWrapper}>
-          <Image style={styles.artworkImg} source={item.image} />
+          {item.image ? (
+            // <SVGImg width={200} height={200} />
+            <Text style={{ fontSize: 100 }}>{index + 1}</Text>
+          ) : (
+            <Image
+              style={styles.artworkImg}
+              source={require("../assets/img/adaptive-icon.png")}
+            />
+          )}
         </View>
       </Animated.View>
     );
@@ -127,8 +194,8 @@ const MusicPlayer = ({ navigation }) => {
 
   // toggle paly and puase function for songs ----------------------------------------
   const handlePlayPause = async () => {
+    onSetup = false;
     await selectAudio(context.currentAudio, context);
-    // console.log("current audio is (handlePlayPause) >> ", context.currentAudio);
   };
   // ---------------------------------------------- ----------------------------------------
 
@@ -224,20 +291,28 @@ const MusicPlayer = ({ navigation }) => {
           )}
         </View>
         {/* Artwork Image or Carosel Image */}
-        <View style={{ width: width }}>
+        <View style={{ width }}>
           <Animated.FlatList
             ref={songSlider}
             data={context.artworkList}
             renderItem={renderSongs}
+            initialScrollIndex={context.currentAudioIndex || 0}
+            onViewableItemsChanged={onViewableItemsChanged.current}
             keyExtractor={(item) => item.id}
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
             scrollEventThrottle={16}
-            onScroll={Animated.event(
-              [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-              { useNativeDriver: true }
-            )}
+            viewabilityConfig={viewabilityConfig.current}
+            getItemLayout={(_, index) => ({
+              length: width,
+              offset: width * index,
+              index,
+            })}
+            // onScroll={Animated.event(
+            //   [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+            //   { useNativeDriver: true }
+            // )}
           />
         </View>
         <View>
@@ -413,7 +488,12 @@ const styles = StyleSheet.create({
   artworkWrapper: {
     width: 300,
     height: 340,
-    marginBottom: 25,
+    marginVertical: 25,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 15,
+    backgroundColor: "#F0EBE3",
+    elevation: 10,
   },
   artworkImg: {
     width: "100%",

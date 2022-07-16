@@ -23,7 +23,10 @@ const RootStackScreen = ({ navigation }) => {
   const removeData = async () => {
     await AsyncStorage.removeItem("previousAudio");
     await AsyncStorage.removeItem("playlist");
-    await AsyncStorage.removeItem("artwork");
+    await AsyncStorage.removeItem("cover");
+
+    // const result = await AsyncStorage.getItem("artwork");
+    // console.log(result);
   };
 
   const loadAssetsAsync = async () => {

@@ -64,7 +64,7 @@ export class AudioList extends Component {
   }
 
   render() {
-    const { navigation, route } = this.props;
+    const { navigation } = this.props;
 
     const navigateToPlaylist = () => {
       this.context.updateState(this.context, {

@@ -36,7 +36,7 @@ export const storePlayListForNextOpening = async (updatedList) => {
 export const storeArtworkForTheNextOpening = async (artWork) => {
   try {
     console.log("----------<<store>>--------- artwork");
-    await AsyncStorage.setItem("artwork", JSON.stringify([...artWork]));
+    await AsyncStorage.setItem("cover", JSON.stringify([...artWork]));
   } catch (error) {
     console.log("error from store artwork helper, -> ", error);
   }

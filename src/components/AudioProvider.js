@@ -107,15 +107,20 @@ export class AudioProvider extends Component {
     this.setState({ ...prevState, ...newState });
   };
 
+  // ----------------------------------------------------------END AUDIO LAOD-----------------------------------------------------------------------------------------
   loadPreviousAudio = async () => {
     let previousAudio = await AsyncStorage.getItem("previousAudio"); // get the item that we store
     let currentAudio;
     let currentAudioIndex;
+
+    const previousArtwork = await AsyncStorage.getItem("cover"); // get the item that we store
+    let artworkList = [];
+
     if (previousAudio === null) {
       console.log("previous audio is null");
       currentAudio = this.state.audioFile[0]; // set first audio if there is no audio in storage
       currentAudioIndex = 0;
-      storeArtworkForTheNextOpening(this.state.artworkList); // store for the next opening if there is no artwork
+      // storeArtworkForTheNextOpening(this.state.artworkList); // store for the next opening if there is no artwork
     } else {
       console.log("previous audio have data");
       previousAudio = JSON.parse(previousAudio); // reconvert json format
@@ -125,20 +130,19 @@ export class AudioProvider extends Component {
     }
 
     // get previous Artwork--------------------------------------------------
-    let previousArtwork = await AsyncStorage.getItem("artwork"); // get the item that we store
-    if (previousArtwork === null) {
+    if (previousArtwork?.length == 0 || previousArtwork == null) {
       console.log("previous artwork is null");
       // add default artwork if there is no artwork
       this.state.audioFile.forEach((audio) => {
-        this.state.artworkList.push({
+        artworkList.push({
           id: audio.id,
-          image: require("../assets/img/adaptive-icon.png"),
+          image: "../assets/img/adaptive-icon.png",
         });
       });
-      storeArtworkForTheNextOpening(this.state.artworkList);
+      storeArtworkForTheNextOpening(artworkList);
     } else {
       console.log("previous artwork have data");
-      artworkList = JSON.parse(previousArtwork); // reconvert json format
+      artworkList = await JSON.parse(previousArtwork); // reconvert json format
     }
 
     // get previous Playlist-------------------------------------------------
@@ -155,8 +159,10 @@ export class AudioProvider extends Component {
       currentAudio,
       currentAudioIndex,
       playList,
+      artworkList,
     }); //
   };
+  // ----------------------------------------------------------END AUDIO LAOD-----------------------------------------------------------------------------------------
 
   // update status regularly
   onPlaybackStatusUpdate = async (playbackStatus) => {
@@ -239,12 +245,12 @@ export class AudioProvider extends Component {
       let allFav = this.state.playList[0]; // get the favourate playlist
       if (allFav !== null) {
         let isFavourate = false;
-        await allFav.audios.every((item) => {
+        await allFav?.audios.every((item) => {
           if (item.id === this.state.currentAudio.id) {
             isFavourate = true;
             return false;
           }
-          console.log("----------- favourate ", isFavourate);
+          // console.log("----------- favourate ", isFavourate);
           return true;
         });
         console.log("-----------end favourate", isFavourate);

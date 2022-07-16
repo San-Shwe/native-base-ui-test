@@ -95,11 +95,11 @@ export const selectAudio = async (audio, context, playListInfo = {}) => {
       return storeAudioForNextOpening(audio, startIndex); // store current audio and its' index
     }
 
-    console.log(
-      soundObj.isLoaded,
-      soundObj.isPlaying,
-      currentAudio.id == audio.id
-    );
+    // console.log(
+    //   soundObj.isLoaded,
+    //   soundObj.isPlaying,
+    //   currentAudio.id == audio.id
+    // );
 
     // pause audio > if playing
     if (soundObj.isLoaded && isPlaying == true && currentAudio.id == audio.id) {
