@@ -42,6 +42,7 @@ const MusicPlayer = ({ navigation }) => {
     currentAudio,
     isFavourate,
     currentAudioIndex,
+    artworkList,
   } = context;
   const { colors } = useTheme();
   const [fontLoaded, setFontLoaded] = useState(false);
@@ -51,7 +52,7 @@ const MusicPlayer = ({ navigation }) => {
   // song index state for song's title and artist name
   const [songIndex, setSongIndex] = useState(currentAudioIndex);
   const [currentPosition, setCurrentPosition] = useState(0);
-
+  const [dataToRender, setDataToRender] = useState([]);
   // song slider ref to catch current song track
   const songSlider = useRef();
 
@@ -66,7 +67,6 @@ const MusicPlayer = ({ navigation }) => {
     return 0;
   };
 
-  //
   // useEffect(() => {
   //   scrollX.addListener(({ value }) => {
   //     console.log("Scroll x", scrollX);
@@ -118,8 +118,16 @@ const MusicPlayer = ({ navigation }) => {
     await context.loadPreviousAudio();
     await loadAssetsAsync(); // load font
     artworkIndex = await currentAudioIndex;
-    // pause(context.playbackObj);
   }, []);
+
+  useEffect(() => {
+    const newData = [
+      // [...artworkList].pop(),
+      ...artworkList,
+      // [...artworkList].shift(),
+    ];
+    setDataToRender([...newData]);
+  }, [artworkList.length]);
 
   const handleScrollTo = (index) => {
     songSlider.current.scrollToIndex({ animated: false, index });
@@ -136,6 +144,9 @@ const MusicPlayer = ({ navigation }) => {
   // skip to next audio ---------------------------------------------------------
   const skipForward = async () => {
     await changeAudio(context, "next");
+    if (currentAudioIndex >= context.totalAudioCount - 1) {
+      return handleScrollTo(0);
+    }
     songSlider.current.scrollToOffset({
       offset: (currentAudioIndex + 1) * width,
     });
@@ -145,6 +156,9 @@ const MusicPlayer = ({ navigation }) => {
   // skip to previous audio ----------------------start--------------------------------
   const skipBackward = async () => {
     await changeAudio(context, "previous");
+    if (currentAudioIndex <= 0) {
+      return handleScrollTo(context.totalAudioCount - 1);
+    }
     songSlider.current.scrollToOffset({
       offset: (currentAudioIndex - 1) * width,
     });
@@ -154,7 +168,6 @@ const MusicPlayer = ({ navigation }) => {
 
   useEffect(() => {
     if (onSetup === false) {
-      //   handleScrollTo(currentAudioIndex);
       songSlider.current.scrollToOffset({
         offset: currentAudioIndex * width,
       });
@@ -282,39 +295,44 @@ const MusicPlayer = ({ navigation }) => {
           </View>
           {context.isPlayListRunning ? (
             <Text style={[styles.audioIndex, { color: colors.text }]}>{`${
-              context.currentAudioIndex + 1
+              currentAudioIndex + 1
             } / ${context.totalAudioCount}`}</Text>
           ) : (
             <Text style={[styles.audioIndex, { color: colors.text }]}>{`${
-              context.currentAudioIndex + 1
+              currentAudioIndex + 1
             } / ${context.totalAudioCount}`}</Text>
           )}
         </View>
         {/* Artwork Image or Carosel Image */}
-        <View style={{ width }}>
-          <Animated.FlatList
-            ref={songSlider}
-            data={context.artworkList}
-            renderItem={renderSongs}
-            initialScrollIndex={context.currentAudioIndex || 0}
-            onViewableItemsChanged={onViewableItemsChanged.current}
-            keyExtractor={(item) => item.id}
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            scrollEventThrottle={16}
-            viewabilityConfig={viewabilityConfig.current}
-            getItemLayout={(_, index) => ({
-              length: width,
-              offset: width * index,
-              index,
-            })}
-            // onScroll={Animated.event(
-            //   [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-            //   { useNativeDriver: true }
-            // )}
-          />
-        </View>
+        {dataToRender.length ? (
+          <View style={{ width }}>
+            <Animated.FlatList
+              ref={songSlider}
+              data={dataToRender}
+              initialScrollIndex={context.currentAudioIndex || 0}
+              onViewableItemsChanged={onViewableItemsChanged.current}
+              keyExtractor={(item, index) =>
+                parseInt(item?.id) + index * Math.random()
+              }
+              horizontal
+              pagingEnabled
+              scrollEnabled={false}
+              showsHorizontalScrollIndicator={false}
+              scrollEventThrottle={16}
+              viewabilityConfig={viewabilityConfig.current}
+              getItemLayout={(_, index) => ({
+                length: width,
+                offset: width * index,
+                index,
+              })}
+              // onScroll={Animated.event(
+              //   [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+              //   { useNativeDriver: true }
+              // )}
+              renderItem={renderSongs}
+            />
+          </View>
+        ) : null}
         <View>
           <Text
             numberOfLines={1}

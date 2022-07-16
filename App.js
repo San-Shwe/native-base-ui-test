@@ -111,7 +111,7 @@ const App = () => {
   useEffect(() => {
     setTimeout(() => {
       setIsLoading(false);
-    }, 1000);
+    }, 100);
   }, []);
 
   const CustomDefaultTheme = {

@@ -173,7 +173,7 @@ export class AudioProvider extends Component {
         playbackDuration: playbackStatus.durationMillis, // set current audio duration
       });
     }
-    console.log(playbackStatus.isLoaded, " <> ", playbackStatus.isPlaying);
+    // console.log(playbackStatus.isLoaded, " <> ", playbackStatus.isPlaying);
     // store audio position for next opening, when the audio is pause,
     if (playbackStatus.isLoaded && !playbackStatus.isPlaying) {
       storeAudioForNextOpening(

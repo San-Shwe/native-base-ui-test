@@ -291,7 +291,7 @@ export const changeAudio = async (context, select) => {
       playbackPosition: null,
       playbackDuration: null,
     });
-    console.log("AFTER NEXT SONG >>> ", context.soundObj);
+    // console.log("AFTER NEXT SONG >>> ", context.soundObj);
     return await storeAudioForNextOpening(audio, index, 0);
   } catch (error) {
     console.log("error inside change audio method", error);
