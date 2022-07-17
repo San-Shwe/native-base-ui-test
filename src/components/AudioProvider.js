@@ -32,6 +32,7 @@ export class AudioProvider extends Component {
       isPlayListRunning: false, // to know it is playing inside Playlist
       activePlayList: [], // current playing Playlist, not audio list
       isFavourate: false,
+      isShuffle: false,
       artworkList: [], // artWork for FlatList or Slider
     };
     this.totalAudioCount = 0;
@@ -191,7 +192,11 @@ export class AudioProvider extends Component {
         const indexOnPlayList = this.state.activePlayList.audios.findIndex(
           ({ id }) => id === this.state.currentAudio.id
         );
-        const nextIndex = indexOnPlayList + 1;
+
+        // next opening is shuffle or simple
+        const nextIndex = this.state.isShuffle
+          ? this.shuffleArray(this.totalAudioCount)
+          : indexOnPlayList + 1;
         audio = this.state.activePlayList.audios[nextIndex];
         // if next audio is last one, set the audio to first audio
         if (!audio) audio = this.state.activePlayList.audios[0];
@@ -210,7 +215,9 @@ export class AudioProvider extends Component {
         });
       }
 
-      const nextAudioIndex = this.state.currentAudioIndex + 1;
+      const nextAudioIndex = this.state.isShuffle
+        ? this.shuffleArray(this.totalAudioCount)
+        : this.state.currentAudioIndex + 1;
 
       // if there is no audio to play
       if (nextAudioIndex >= this.totalAudioCount) {
@@ -261,6 +268,26 @@ export class AudioProvider extends Component {
     }
   };
 
+  handleShuffle = () => {
+    try {
+      const isShuffle = !this.state.isShuffle;
+      if (isShuffle === true) {
+      } else {
+      }
+      this.updateState(this, {
+        isShuffle,
+      });
+    } catch (error) {
+      console.log("error inside shuffle");
+    }
+  };
+
+  shuffleArray = (maxLimit) => {
+    let rand = Math.random() * maxLimit;
+    rand = Math.floor(rand);
+    return rand;
+  };
+
   // do on load
   componentDidMount() {
     this.getPermission();
@@ -302,6 +329,7 @@ export class AudioProvider extends Component {
       activePlayList,
       isFavourate,
       artworkList,
+      isShuffle,
     } = this.state;
     // show this screen if user denined audio permission
     if (permissionError) {
@@ -326,7 +354,6 @@ export class AudioProvider extends Component {
           currentAudio,
           isPlaying,
           currentAudioIndex,
-          totalAudioCount: this.totalAudioCount,
           playbackPosition,
           playbackDuration,
           playList,
@@ -336,6 +363,9 @@ export class AudioProvider extends Component {
           activePlayList,
           isFavourate,
           artworkList,
+          isShuffle,
+          handleShuffle: this.handleShuffle,
+          totalAudioCount: this.totalAudioCount,
           handleFavourate: this.handleFavourate,
           updateState: this.updateState,
           loadPreviousAudio: this.loadPreviousAudio,

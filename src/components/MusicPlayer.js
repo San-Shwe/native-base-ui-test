@@ -344,13 +344,44 @@ const MusicPlayer = ({ navigation }) => {
             Unknown
           </Text>
         </View>
-        {/* Slider Bar */}
+
         <View>
+          {/* Slider Bar */}
+          <View style={styles.favourateLabelContainer}>
+            <TouchableOpacity
+              onPress={() => {
+                handleFavourateSetOrRemove();
+              }}
+            >
+              <Ionicons
+                style={{ color: colors.icon }}
+                name={isFavourate ? "heart" : "heart-outline"}
+                size={25}
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => {
+                context.handleShuffle();
+              }}
+            >
+              <Ionicons
+                style={{ color: colors.icon }}
+                name={
+                  context.isShuffle
+                    ? "shuffle-outline"
+                    : "arrow-forward-outline"
+                }
+                size={25}
+              />
+            </TouchableOpacity>
+          </View>
           <Slider
             style={styles.progressContainer}
             minimumValue={0}
             maximumValue={1}
             value={calculateSeebBar()}
+            thumbTintColor={colors.subTxt}
             minimumTrackTintColor={colors.icon}
             maximumTrackTintColor={colors.icon}
             onValueChange={(value) => {
@@ -424,7 +455,6 @@ const MusicPlayer = ({ navigation }) => {
         <View style={styles.bottomControl}>
           <TouchableOpacity
             onPress={() => {
-              console.log("hello HEART");
               handleFavourateSetOrRemove();
             }}
           >
@@ -546,7 +576,15 @@ const styles = StyleSheet.create({
   progressLableContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 15,
+  },
+  favourateLabelContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 15,
+    marginBottom: -20,
   },
   progressLableTxt: {
     fontFamily: "Roboto-Light",
