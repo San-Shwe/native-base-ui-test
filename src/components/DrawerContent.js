@@ -32,7 +32,7 @@ const DrawerContent = (props) => {
       <DrawerContentScrollView {...props}>
         <View styles={styles.drawerContent}>
           {/* User Information Section  */}
-          <View style={styles.userInfoSection}>
+          {/* <View style={styles.userInfoSection}>
             <View style={{ flexDirection: "row", marginTop: 15 }}>
               <Avatar.Image
                 source={{
@@ -45,10 +45,10 @@ const DrawerContent = (props) => {
                 <Caption style={styles.caption}>@san-shwe</Caption>
               </View>
             </View>
-          </View>
+          </View> */}
 
           {/* Followers and Following Section  */}
-          <View style={styles.row}>
+          {/* <View style={styles.row}>
             <View style={styles.section}>
               <Paragraph style={[styles.paragraph, styles.caption]}>
                 80
@@ -61,7 +61,7 @@ const DrawerContent = (props) => {
               </Paragraph>
               <Caption style={styles.caption}>Follower</Caption>
             </View>
-          </View>
+          </View> */}
 
           {/* Other Sections */}
           <Drawer.Section>
@@ -75,7 +75,7 @@ const DrawerContent = (props) => {
               }}
             />
           </Drawer.Section>
-          <Drawer.Section>
+          {/* <Drawer.Section>
             <DrawerItem
               icon={({ color, size }) => (
                 <Icon name="account" color={color} size={size} />
@@ -85,7 +85,7 @@ const DrawerContent = (props) => {
                 props.navigation.navigate("Profile");
               }}
             />
-          </Drawer.Section>
+          </Drawer.Section> */}
           <Drawer.Section>
             <DrawerItem
               icon={({ color, size }) => (

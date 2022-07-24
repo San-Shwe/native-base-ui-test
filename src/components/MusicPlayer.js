@@ -14,6 +14,10 @@ import { useTheme } from "react-native-paper";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Slider from "@react-native-community/slider";
 import { songs } from "../model/data"; // {songs}, songs
+import VolumeControl, {
+  VolumeControlEvents,
+} from "react-native-volume-control";
+volume: 0;
 import { AudioContext } from "./AudioProvider";
 import {
   selectAudio,
@@ -53,6 +57,7 @@ const MusicPlayer = ({ navigation }) => {
   const [songIndex, setSongIndex] = useState(currentAudioIndex);
   const [currentPosition, setCurrentPosition] = useState(0);
   const [dataToRender, setDataToRender] = useState([]);
+  const [volume, setVolume] = useState(0);
   // song slider ref to catch current song track
   const songSlider = useRef();
 
@@ -113,6 +118,16 @@ const MusicPlayer = ({ navigation }) => {
     );
     artworkIndex = currentSlideIndex;
   });
+
+  // Updates device volume
+  const sliderChange = (value) => {
+    VolumeControl.change(value);
+  };
+
+  // Updates Slider UI when hardware buttons change volume
+  const volumeEvent = (event) => {
+    setVolume(event.volume);
+  };
 
   useEffect(async () => {
     await context.loadPreviousAudio();
