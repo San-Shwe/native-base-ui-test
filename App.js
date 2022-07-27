@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, TouchableWithoutFeedback } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { storeThemeForNextOpening } from "./src/misc/storeHelper";
 
@@ -31,6 +31,9 @@ import AudioList from "./src/components/AudioList";
 import { AudioProvider } from "./src/components/AudioProvider";
 import Playlist from "./src/Screen/Playlist";
 import { PlayListDetails } from "./src/Screen/PlayListDetails";
+import PostDetails from "./src/blog-components/PostDetails";
+import BlogScreen from "./src/blog-components/BlogScreen";
+import { AntDesign } from "@expo/vector-icons";
 
 const HomeStack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -167,6 +170,37 @@ const App = () => {
                 />
                 <Drawer.Screen name="Profile" component={ProfileScreen} />
                 <Drawer.Screen name="Support" component={SupportScreen} />
+                {/* BlogPost Nav*/}
+                <Stack.Screen
+                  options={{ headerShown: false }}
+                  component={BlogScreen}
+                  name="BlogScreen"
+                />
+                <Stack.Screen
+                  options={{
+                    title: "",
+                    headerTransparent: true,
+                    headerShadowVisible: false,
+                    headerLeft: (props) => {
+                      <TouchableWithoutFeedback {...props}>
+                        <view
+                          style={{
+                            width: 40,
+                            height: 40,
+                            justifyContent: "center",
+                            alignItems: "center",
+                            borderRadius: 20,
+                            backgroundColor: "rgba(0,0,0,0.5)",
+                          }}
+                        >
+                          <AntDesign name="back" size={24} color="white" />
+                        </view>
+                      </TouchableWithoutFeedback>;
+                    },
+                  }}
+                  component={PostDetails}
+                  name="PostDetails"
+                />
               </Drawer.Navigator>
             ) : (
               <RootStackScreen />

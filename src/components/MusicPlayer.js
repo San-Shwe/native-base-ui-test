@@ -31,6 +31,9 @@ import {
   storePlayListForNextOpening,
 } from "../misc/storeHelper";
 import SVGImg from "../assets/artwork/music-svgrepo-com.svg";
+import { Entypo } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const { width, height } = Dimensions.get("window");
 let currentSlideIndex = 0;
@@ -468,28 +471,19 @@ const MusicPlayer = ({ navigation }) => {
         style={[styles.bottomContainer, { borderTopColor: colors.opacity }]}
       >
         <View style={styles.bottomControl}>
-          <TouchableOpacity
-            onPress={() => {
-              handleFavourateSetOrRemove();
-            }}
-          >
-            <Ionicons
-              name={isFavourate ? "heart" : "heart-outline"}
+          <TouchableOpacity>
+            <MaterialCommunityIcons
+              name="book-information-variant"
               size={30}
               style={{ color: colors.icon }}
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => {}}>
-            <Ionicons
-              name="repeat-outline"
-              size={30}
-              style={{ color: colors.icon }}
+              onPress={() => {
+                navigation.navigate("BlogScreen");
+              }}
             />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => {}}>
-            <Ionicons
-              name="file-tray-stacked-outline"
+            <Entypo
+              name="folder-music"
               size={30}
               style={{ color: colors.icon }}
               onPress={() => {
@@ -498,8 +492,8 @@ const MusicPlayer = ({ navigation }) => {
             />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => {}}>
-            <Ionicons
-              name="list-outline"
+            <MaterialIcons
+              name="queue-music"
               size={30}
               style={{ color: colors.icon }}
               onPress={() => {
