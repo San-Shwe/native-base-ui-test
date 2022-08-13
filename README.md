@@ -1,5 +1,3 @@
-# native-base-ui-test
-
-# npm v16.15.0
+<img align="center" alt="GIF" src="https://github.com/San-Shwe/San-Shwe/blob/master/img/rakhita-music-ui.png" width="400" />
 
 
