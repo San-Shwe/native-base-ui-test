@@ -48,6 +48,7 @@
     "react-native-vector-icons": "^6.7.0",
     "react-native-volume-control": "^1.0.1",
     "react-native-web": "0.17.1",
+    "react-native-webview": "^11.15.0",
     "react-navigation": "^4.4.4",
     "react-timer-mixin": "^0.13.4",
     "recyclerlistview": "^3.0.5",

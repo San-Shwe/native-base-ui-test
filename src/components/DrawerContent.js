@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, StatusBar } from "react-native";
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, StatusBar } from 'react-native';
 
-import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
+import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 // import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import {
@@ -13,10 +13,10 @@ import {
   Paragraph,
   Switch,
   TouchableRipple,
-} from "react-native-paper";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+} from 'react-native-paper';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-import { AuthContext } from "./context";
+import { AuthContext } from './context';
 
 const DrawerContent = (props) => {
   // get current Theme
@@ -28,7 +28,7 @@ const DrawerContent = (props) => {
 
   return (
     <View style={{ flex: 1 }}>
-      <StatusBar barStyle={theme.dark ? "light-content" : "light-content"} />
+      <StatusBar barStyle={theme.dark ? 'light-content' : 'light-content'} />
       <DrawerContentScrollView {...props}>
         <View styles={styles.drawerContent}>
           {/* User Information Section  */}
@@ -67,11 +67,11 @@ const DrawerContent = (props) => {
           <Drawer.Section>
             <DrawerItem
               icon={({ color, size }) => (
-                <Icon name="home-outline" color={color} size={size} />
+                <Icon name='home-outline' color={color} size={size} />
               )}
-              label="Home"
+              label='Home'
               onPress={() => {
-                props.navigation.navigate("HomeScreen");
+                props.navigation.navigate('HomeScreen');
               }}
             />
           </Drawer.Section>
@@ -89,22 +89,22 @@ const DrawerContent = (props) => {
           <Drawer.Section>
             <DrawerItem
               icon={({ color, size }) => (
-                <Icon name="cog-outline" color={color} size={size} />
+                <Icon name='cog-outline' color={color} size={size} />
               )}
-              label="Setting"
+              label='Setting'
               onPress={() => {
-                props.navigation.navigate("Profile");
+                props.navigation.navigate('Profile');
               }}
             />
           </Drawer.Section>
           <Drawer.Section>
             <DrawerItem
               icon={({ color, size }) => (
-                <Icon name="lifebuoy" color={color} size={size} />
+                <Icon name='lifebuoy' color={color} size={size} />
               )}
-              label="Support"
+              label='Support'
               onPress={() => {
-                props.navigation.navigate("Support");
+                props.navigation.navigate('WebView');
               }}
             />
           </Drawer.Section>
@@ -112,7 +112,7 @@ const DrawerContent = (props) => {
       </DrawerContentScrollView>
 
       {/* Preferences */}
-      <Drawer.Section title="Preferences">
+      <Drawer.Section title='Preferences'>
         <TouchableRipple
           onPress={() => {
             toggleTheme();
@@ -120,7 +120,7 @@ const DrawerContent = (props) => {
         >
           <View style={styles.preference}>
             <Text style={{ color: colors.text }}>Dark Theme</Text>
-            <View pointerEvents="none">
+            <View pointerEvents='none'>
               <Switch value={paperTheme.dark} />
             </View>
           </View>
@@ -130,9 +130,9 @@ const DrawerContent = (props) => {
       <Drawer.Section style={styles.bottomDrawerSection}>
         <DrawerItem
           icon={({ color, size }) => (
-            <Icon name="exit-to-app" color={color} size={size} />
+            <Icon name='exit-to-app' color={color} size={size} />
           )}
-          label="Sign Out"
+          label='Sign Out'
           onPress={() => {
             signOut();
           }}
@@ -147,27 +147,27 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   userInfoSection: { paddingLeft: 20 },
-  title: { fontSize: 16, marginTop: 3, fontWeight: "bold" },
+  title: { fontSize: 16, marginTop: 3, fontWeight: 'bold' },
   bottomDrawerSection: {
     marginBottom: 15,
     borderTopWidth: 1,
   },
   userInfoSection: { paddingLeft: 20 },
-  title: { fontSize: 16, marginTop: 3, fontWeight: "bold" },
+  title: { fontSize: 16, marginTop: 3, fontWeight: 'bold' },
   caption: { fontSize: 14, lineHeight: 14 },
   row: {
     marginTop: 20,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  section: { flexDirection: "row", alignItems: "center", marginRight: 15 },
-  paragraph: { fontWeight: "bold" },
+  section: { flexDirection: 'row', alignItems: 'center', marginRight: 15 },
+  paragraph: { fontWeight: 'bold' },
   drawerSection: { marginTop: 15 },
   preference: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
   },
 });
 
