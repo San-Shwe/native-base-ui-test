@@ -1,40 +1,40 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { StyleSheet, View, TouchableWithoutFeedback } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { storeThemeForNextOpening } from './src/misc/storeHelper';
+import React, { useState, useEffect, useMemo } from "react";
+import { StyleSheet, View, TouchableWithoutFeedback } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { storeThemeForNextOpening } from "./src/misc/storeHelper";
 
 // IMPORT PACKAGES
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { createDrawerNavigator } from "@react-navigation/drawer";
+import { createStackNavigator } from "@react-navigation/stack";
 
 import {
   NavigationContainer,
   DefaultTheme as NavigationDefaultTheme,
   DarkTheme as NavigationDarkTheme,
-} from '@react-navigation/native';
+} from "@react-navigation/native";
 import {
   Provider as PaperProvider,
   DefaultTheme as PaperDefaultTheme,
   DarkTheme as PaperDarkTheme,
   ActivityIndicator,
-} from 'react-native-paper';
+} from "react-native-paper";
 
 // IMPORT COMPONENTS
-import MusicPlayer from './src/components/MusicPlayer';
-import DrawerContent from './src/components/DrawerContent';
-import ProfileScreen from './src/components/ProfileScreen';
-import SupportScreen from './src/components/SupportScreen';
-import Webview from './src/components/Webview';
-import RootStackScreen from './src/components/RootStackScreen';
-import { AuthContext } from './src/components/context';
-import AudioList from './src/components/AudioList';
-import { AudioProvider } from './src/components/AudioProvider';
-import Playlist from './src/Screen/Playlist';
-import { PlayListDetails } from './src/Screen/PlayListDetails';
-import PostDetails from './src/blog-components/PostDetails';
-import BlogScreen from './src/blog-components/BlogScreen';
-import { AntDesign } from '@expo/vector-icons';
+import MusicPlayer from "./src/components/MusicPlayer";
+import DrawerContent from "./src/components/DrawerContent";
+import ProfileScreen from "./src/components/ProfileScreen";
+import SupportScreen from "./src/components/SupportScreen";
+import Webview from "./src/components/Webview";
+import RootStackScreen from "./src/components/RootStackScreen";
+import { AuthContext } from "./src/components/context";
+import AudioList from "./src/components/AudioList";
+import { AudioProvider } from "./src/components/AudioProvider";
+import Playlist from "./src/Screen/Playlist";
+import { PlayListDetails } from "./src/Screen/PlayListDetails";
+import PostDetails from "./src/blog-components/PostDetails";
+import BlogScreen from "./src/blog-components/BlogScreen";
+import { AntDesign } from "@expo/vector-icons";
 
 const HomeStack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -44,24 +44,24 @@ const HomeStackScreen = ({ navigation }) => {
   return (
     <HomeStack.Navigator>
       <HomeStack.Screen
-        name='MusicPlayer'
+        name="MusicPlayer"
         component={MusicPlayer}
         options={{ headerShown: false }}
       />
       <HomeStack.Screen
-        name='AudioList'
+        name="AudioList"
         component={AudioList}
-        options={{ title: 'Audio List' }}
+        options={{ title: "Audio List" }}
       />
       <HomeStack.Screen
-        name='PlayListDetails'
-        options={{ headerShown: false, title: 'Play List Details' }}
+        name="PlayListDetails"
+        options={{ headerShown: false, title: "Play List Details" }}
         component={PlayListDetails}
         navigation={navigation}
       />
       <HomeStack.Screen
-        name='Playlist'
-        options={{ headerShown: false, title: 'Play List' }}
+        name="Playlist"
+        options={{ headerShown: false, title: "Play List" }}
         navigation={navigation}
         component={Playlist}
       />
@@ -76,14 +76,14 @@ const App = () => {
 
   const loadTheme = async () => {
     try {
-      const previousTheme = await AsyncStorage.getItem('previousTheme');
+      const previousTheme = await AsyncStorage.getItem("previousTheme");
       if (previousTheme !== null) {
         const currentTheme = JSON.parse(previousTheme);
         setIsDarkTheme(currentTheme.isDarkTheme);
         console.log(currentTheme);
       }
     } catch (error) {
-      console.log('Error inside Load Theme ', error);
+      console.log("Error inside Load Theme ", error);
     }
   };
 
@@ -94,7 +94,7 @@ const App = () => {
   // Authentication Status Function
   const authContext = useMemo(() => ({
     signIn: () => {
-      setUserToken('dfsdf');
+      setUserToken("dfsdf");
       setIsLoading(false);
     },
     signOut: () => {
@@ -102,7 +102,7 @@ const App = () => {
       setIsLoading(false);
     },
     signUp: () => {
-      setUserToken('dfsdf');
+      setUserToken("dfsdf");
       setIsLoading(false);
     },
     toggleTheme: () => {
@@ -124,10 +124,10 @@ const App = () => {
     colors: {
       ...NavigationDefaultTheme.colors,
       ...PaperDefaultTheme.colors,
-      text: '#333333',
-      subTxt: '#413F42',
-      icon: '#990011FF',
-      opacity: '#7F8487',
+      text: "#333333",
+      subTxt: "#413F42",
+      icon: "#990011FF",
+      opacity: "#7F8487",
     },
   };
 
@@ -137,10 +137,10 @@ const App = () => {
     colors: {
       ...NavigationDarkTheme.colors,
       ...PaperDarkTheme.colors,
-      text: '#fff',
-      subTxt: '#F1EEE9',
-      icon: '#03DAC5',
-      opacity: '#99A799',
+      text: "#fff",
+      subTxt: "#F1EEE9",
+      icon: "#03DAC5",
+      opacity: "#99A799",
     },
   };
 
@@ -148,8 +148,8 @@ const App = () => {
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size='large' />
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" />
       </View>
     );
   }
@@ -162,26 +162,30 @@ const App = () => {
             {userToken != null ? (
               <Drawer.Navigator
                 drawerContent={(props) => <DrawerContent {...props} />}
-                initialRouteName='HomeScreen'
+                initialRouteName="HomeScreen"
               >
                 <Drawer.Screen
-                  name='HomeScreen'
+                  name="HomeScreen"
                   component={HomeStackScreen}
                   options={{ headerShown: false }}
                 />
-                <Drawer.Screen name='Profile' component={ProfileScreen} />
-                <Drawer.Screen name='Support' component={SupportScreen} />
-                <Drawer.Screen name='WebView' component={Webview} />
+                <Drawer.Screen name="Profile" component={ProfileScreen} />
+                <Drawer.Screen name="Support" component={SupportScreen} />
+                <Drawer.Screen
+                  name="WebView"
+                  component={Webview}
+                  options={{ title: "Support" }}
+                />
 
                 {/* BlogPost Nav*/}
                 <Stack.Screen
                   options={{ headerShown: false }}
                   component={BlogScreen}
-                  name='BlogScreen'
+                  name="BlogScreen"
                 />
                 <Stack.Screen
                   options={{
-                    title: '',
+                    title: "",
                     headerTransparent: true,
                     headerShadowVisible: false,
                     headerLeft: (props) => {
@@ -190,19 +194,19 @@ const App = () => {
                           style={{
                             width: 40,
                             height: 40,
-                            justifyContent: 'center',
-                            alignItems: 'center',
+                            justifyContent: "center",
+                            alignItems: "center",
                             borderRadius: 20,
-                            backgroundColor: 'rgba(0,0,0,0.5)',
+                            backgroundColor: "rgba(0,0,0,0.5)",
                           }}
                         >
-                          <AntDesign name='back' size={24} color='white' />
+                          <AntDesign name="back" size={24} color="white" />
                         </view>
                       </TouchableWithoutFeedback>;
                     },
                   }}
                   component={PostDetails}
-                  name='PostDetails'
+                  name="PostDetails"
                 />
               </Drawer.Navigator>
             ) : (
@@ -219,53 +223,53 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     // backgroundColor: "#fff",
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   logo: {
     width: 305,
     height: 200,
     marginBottom: 10,
     // backgroundColor: "red",
-    transform: [{ rotate: '45deg' }],
+    transform: [{ rotate: "45deg" }],
   },
   instructions: {
-    color: '#888',
+    color: "#888",
     fontSize: 18,
     marginHorizontal: 15,
   },
   button: {
-    backgroundColor: 'blue',
+    backgroundColor: "blue",
     padding: 20,
     borderRadius: 5,
   },
   buttonText: {
     fontSize: 20,
-    color: '#fff',
+    color: "#fff",
   },
   mainHeader: {
     top: 10,
-    width: '100%',
+    width: "100%",
     height: 100,
     padding: 20,
-    textAlign: 'center',
-    fontWeight: 'bold',
+    textAlign: "center",
+    fontWeight: "bold",
     fontSize: 30,
     // fontFamily: "Roboto-Light",
-    color: '#000000',
+    color: "#000000",
   },
   subHeader: {
-    width: '100%',
-    textAlign: 'center',
-    color: '#000000',
+    width: "100%",
+    textAlign: "center",
+    color: "#000000",
   },
   backgroundImage: {
     flex: 1,
     // height: 100,
     // width: 200,
-    alignSelf: 'stretch',
+    alignSelf: "stretch",
     width: null,
-    position: 'absolute',
+    position: "absolute",
   },
 });
 
